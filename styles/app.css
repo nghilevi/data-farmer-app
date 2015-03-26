@@ -157,6 +157,7 @@ thead{
   background-color: #fff !important;
 }  
 
+
 /** custom styles **/
 #header{
   margin-left: 20%;
@@ -182,13 +183,29 @@ thead{
   margin: auto 40px auto 5px;
 }
 
-#right-panel button{
-    display: block;
-    width: 100%;
-    margin: 2px;
-    padding: 5px;
+#header button, #right-panel button,#footer button{
+  border-radius: 0;
+  font-size: 0.8em;
+  text-align: center;
+  border: 1px solid black;
 }
 
+#right-panel button{
+  padding: 15px;
+  background-color: white;
+  margin: 2px 2px 5px;
+  color: #428bca;
+  display: block;
+  width: 100%;
+  white-space: initial;
+}
+
+#right-panel button:hover{
+  background-color: rgba(66,139,202,0.1);
+}
+#header button:hover,#footer button:hover{
+  background-color: rgba(66,139,202,0.8);
+}
 #right-panel {
   min-width: 12%;
   padding-top: 25px;

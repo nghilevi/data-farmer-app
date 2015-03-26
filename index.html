@@ -8,7 +8,7 @@
   
     <div class="row">
       <div id="header">
-        <button id="refresh-tree-btn" ng-click="refresh()">Refresh Organization Tree</button>
+        <button class="btn btn-primary" id="refresh-tree-btn" ng-click="refresh()">Refresh Organization Tree</button>
         <label id="last-refresh-date">{{lastRefreshDateTime}}</label>
       </div>
     </div>
@@ -26,10 +26,10 @@
 
         <div id="right-panel" class="col-md-1 .col-sm-4 col-xs-12">
           <label>Select/Unselect</label>
-          <button ng-click="importOrganization(selectedItem)">Import Organization</button>
-          <button ng-click="importOrganizationAndUsers()">Import Organization & Users</button>
-          <button ng-click="obsoleteOrganization()">Obsolete Organization</button>
-          <button ng-click="obsoleteUsers()">Obsolete Users</button>
+          <button  class="btn btn-primary" ng-click="importOrganization(selectedItem)">Import Organization</button>
+          <button class="btn btn-primary" ng-click="importOrganizationAndUsers()">Import Organization & Users</button>
+          <button class="btn btn-primary" ng-click="obsoleteOrganization()">Obsolete Organization</button>
+          <button class="btn btn-primary" ng-click="obsoleteUsers()">Obsolete Users</button>
         </div>
 
       </div>
@@ -37,9 +37,9 @@
 
     <div class="row">
       <div id="footer">
-        <button id="save-btn" ng-click="save()">Save</button>
-        <button ng-click="saveAndRun()">Save & Schedule run</button>
-        <button id="close" ng-click="close()">Close</button>
+        <button class="btn btn-primary" id="save-btn" ng-click="save()">Save</button>
+        <button class="btn btn-primary" ng-click="saveAndRun()">Save & Schedule run</button>
+        <button class="btn btn-primary" id="close" ng-click="close()">Close</button>
         <p id="last-saved">{{lastSavedDateTime}}</p>
       </div>
     </div>
