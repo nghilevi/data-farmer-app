@@ -1,2 +1,2 @@
-[Demo](www.codingisloving.com/WEBAPPS/datafarmer/index.html#)
+[Demo](www.codingisloving.com/WEBAPPS/datafarmer/index.html)
 
