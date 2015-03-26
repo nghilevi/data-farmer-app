@@ -1,0 +1,9 @@
+<ul class="nav nav-list nav-pills nav-stacked abn-tree">
+  <li ng-repeat="row in tree_rows | filter:{visible:true} track by row.branch.uid" ng-animate="'abn-tree-animate'" ng-class="(row.branch.selected ? ' active':'')" class="abn-tree-row">
+    <a>
+      <span class="indented tree-label">
+        <input  ng-click="user_clicks_branch(row)" type='checkbox' ng-model='row.label'  />
+      </span>  
+    </a>
+  </li>
+</ul>

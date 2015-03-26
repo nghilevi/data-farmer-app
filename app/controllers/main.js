@@ -1,41 +1,60 @@
-angular.module('dtfApp')
-  .controller('MainController', function($scope, $timeout) { 
-    //Raw data
-    var org_data = [
-      {
-        "label": 'BA-Group',
-        "props":{"EA":true, "IO":true, "IU":false, "MOO":false, "MUO":false},
-        "children": [
-          {
-            "label": 'BA-Group Development',
-            "props":{"EA":true, "IO":true, "IU":false, "MOO":false, "MUO":true},
-            "children": [
-              {
-                "label": 'North America',
-                "props":{"EA":true, "IO":true, "IU":false, "MOO":false, "MUO":false},
-                "children": [
-                  {
-                    "label": 'North America SubOrg1',
-                    "props":{"EA":true, "IO":true, "IU":true, "MOO":false, "MUO":false}
-                  },
-                  {
-                    "label": 'North America SubOrg2',
-                    "props":{"EA":true, "IO":false, "IU":false, "MOO":true, "MUO":false}
-                  }
+dtfApp.factory('DataService', function() {
+  return {
+      fetchedData : [
+        {
+          "label": 'BA-Group',
+          "props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":false},
+          "children": [
+            {
+              "label": 'BA-Group Development',
+              "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":true},
+              "children": [
+                {
+                  "label": 'North America',
+                  "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false},
+                  "children": [
+                    {
+                      "label": 'North America SubOrg1',
+                      "props":{"EA":true, "IO":true, "IU":true, "OO":false, "OU":false}
+                    },
+                    {
+                      "label": 'North America SubOrg2',
+                      "props":{"EA":true, "IO":false, "IU":false, "OO":true, "OU":false}
+                    }
 
-                ]
-              },
-              {"label":"Functions","props":{"EA":true, "IO":true, "IU":false, "MOO":false, "MUO":false}},
-              {"label":"Europe&Latin America","props":{"EA":true, "IO":false, "IU":false, "MOO":false, "MUO":true}},
-              {"label":"HR Human Resources","props":{"EA":true, "IO":false, "IU":false, "MOO":false, "MUO":true}},
-              {"label":"Org Unit for Level 2 Testing","props":{"EA":false, "IO":false, "IU":false, "MOO":false, "MUO":false}}
-            ]
-          }
-        ]
-      }
-    ];
+                  ]
+                },
+                {"label":"Functions","props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false}},
+                {"label":"Europe&Latin America","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
+                {"label":"HR Human Resources","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
+                {"label":"Org Unit for Level 2 Testing","props":{"EA":false, "IO":false, "IU":false, "OO":false, "OU":false}}
+              ]
+            }
+          ]
+        }   
+      ]
+  };
+});
+
+dtfApp.controller('MainController', function($scope, $timeout,$location,DataService) { 
+    // ********* Scope variables *********
     
-    //Helper functions
+    var fetchedData = DataService.fetchedData;
+
+    $scope.prop_names=Object.keys(fetchedData[0].props);
+    $scope.menus=[
+        {"label":"Desktop"},
+        {"label":"Intergrations","children":[{"label":"Intergration Jobs"}]},
+        {"label":"Reporting"},
+        {"label":"Administration"}
+    ];
+    $scope.selectedItem={label:"",level:"",index:""};
+
+    $scope.my_data = fetchedData;
+    $scope.lastRefreshDateTime = "";
+    $scope.lastSavedDateTime = "";
+
+    // ********* Helper functions ************
     var getCurrentDateTime=function(){
       var currDateStr = ' ';
       var currentDate = new Date(); 
@@ -43,41 +62,108 @@ angular.module('dtfApp')
       currDateStr +=(currentDate.getMonth()+1)+ "/";
       currDateStr +=currentDate.getDate() + "  ";
       currDateStr +=currentDate.getHours() + ":"  ;
-      currDateStr +=currentDate.getMinutes();
+      var minutes =currentDate.getMinutes();
+      if (minutes < 10) {minutes = "0"+minutes;}
+      currDateStr +=minutes;
       return currDateStr;
     }
-    var processData = function(data){
-      return data[0].props;
+
+    var IO=$scope.prop_names[1];
+    var IU=$scope.prop_names[2];
+    var OO=$scope.prop_names[3];
+    var OU=$scope.prop_names[4];
+    
+    var toggleSelectUnselect=function(prop){
+      var label=$scope.selectedItem.label;
+      var level=$scope.selectedItem.level;
+      var index=$scope.selectedItem.index;
+
+      console.log("level:"+level);
+      console.log("index:"+index);
+
+      /*
+      Use eval eg. change North America, level 3, index 1
+      var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
+      $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+      Another way is to update a data
+      */
+
+      var findOldValueStr='$scope.my_data[0]';
+      for(l=1;l<=level;l++){
+          if(level==1){
+            findOldValueStr+='.props[prop]';
+            break;
+          }
+          if(l==level-1){
+            findOldValueStr+='.children[index].props[prop]';
+            break;
+          }
+
+          if(l<level){
+            findOldValueStr+='.children[0]';
+          }
+      }
+
+      var oldValue=eval(findOldValueStr);
+      var updateValueStr=findOldValueStr+'=!'+oldValue;
+      eval(updateValueStr);
     }
 
     //Scope methods
     $scope.refresh=function(){
-      document.getElementById("last-refresh-date").innerHTML="Last Refreshed: "+getCurrentDateTime();
+      $scope.lastRefreshDateTime="Last Refreshed: "+getCurrentDateTime();
+
+      console.log('BEFORE----------------------------:');
+      console.log('$scope.my_data');
+      console.log($scope.my_data[0].props);
+      
+      console.log('fetchedData:');
+      console.log(fetchedData[0].props); 
+      
+      console.log('DataService:');
+      console.log(DataService.fetchedData[0].props); 
+
+      // $scope.my_data=DataService.fetchedData;
+
+      // console.log('AFTER----------------------------:');
+      // console.log('current data:');
+      // console.log($scope.my_data);
+      
+
     }
 
     $scope.save=function(){
-      document.getElementById("last-saved").innerHTML="Last saved: "+getCurrentDateTime();
+      $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
+      fetchedData=$scope.my_data;
     }
 
     $scope.saveAndRun=function(){
       //TODO
-      document.getElementById("last-saved").innerHTML="Last saved: "+getCurrentDateTime();
+      $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
+      $location.path('/schedule');
     }
 
     $scope.close=function(){
       //TODO
+      $location.path('/close');
     }
 
-    //Processed data
-    $scope.prop_names=Object.keys(processData(org_data));
+    $scope.importOrganization=function(){
+      toggleSelectUnselect(IO);
+    }
 
-    $scope.menus=[
-        {"label":"Desktop"},
-        {"label":"Intergrations","children":[{"label":"Intergration Jobs"}]},
-        {"label":"Reporting"},
-        {"label":"Administration"}
-    ];
+    $scope.importOrganizationAndUsers=function(){
+      toggleSelectUnselect(IO);
+      toggleSelectUnselect(IU);
+    }
 
-    $scope.my_data = org_data;
+    $scope.obsoleteOrganization=function(){
+      toggleSelectUnselect(OO);
+    }
+
+    $scope.obsoleteUsers=function(){
+      toggleSelectUnselect(OU);
+    }
 
 });
+

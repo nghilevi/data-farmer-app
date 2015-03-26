@@ -1,15 +1,17 @@
 var app = angular.module('angularBootstrapNavTree', []);
 
-app.directive('abntree', [
+app.directive('foldertree', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
-      template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"'level-' + {{ row.level }} + (row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a ng-click=\"user_clicks_branch(row.branch)\">\n      <i ng-class=\"row.tree_icon\" ng-click=\"row.branch.expanded = !row.branch.expanded\" class=\"indented tree-icon\"> </i>\n      <span class=\"indented tree-label\">{{ row.label }} </span>\n    </a>\n  </li>\n</ul>",
+      //template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"'level-' + {{ row.level }} + (row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a ng-click=\"user_clicks_branch(row.branch)\">\n      <i ng-class=\"row.tree_icon\" ng-click=\"row.branch.expanded = !row.branch.expanded\" class=\"indented tree-icon\"> </i>\n      <span class=\"indented tree-label\">{{ row.label }} </span>\n    </a>\n  </li>\n</ul>",
+      templateUrl: '../views/foldertree.html',
       replace: true,
       scope: {
         treeData: '=',
-        onSelect: '&',
-        treeControl: '='
+        onSelect: '&', //isolate -> outside
+        treeControl: '=', 
+        selectedItem: '=' //2 way data binding
       },
       link: function(scope, element, attrs) {
         var error, expand_all_parents, expand_level, for_all_ancestors, for_each_branch, get_parent, n, on_treeData_change, select_branch, selected_branch, tree;
@@ -98,11 +100,19 @@ app.directive('abntree', [
             }
           }
         };
-        scope.user_clicks_branch = function(branch) {
+        scope.user_clicks_branch = function(row) {
+          console.log("user_clicks_branch-------------------------------");
+          scope.selectedItem.label=row.label;
+          scope.selectedItem.level=row.level;
+          scope.selectedItem.index=row.index;
+
+          var branch=row.branch;
+
           if (branch !== selected_branch) {
             return select_branch(branch);
           }
         };
+
         get_parent = function(child) {
           var parent;
           parent = void 0;
@@ -179,7 +189,7 @@ app.directive('abntree', [
               return branch.children = [];
             }
           });
-          add_branch_to_list = function(level, branch, visible) {
+          add_branch_to_list = function(level, branch, visible,_i) {
             var child, child_visible, tree_icon, _i, _len, _ref, _results;
             if (branch.expanded == null) {
               branch.expanded = false;
@@ -195,6 +205,7 @@ app.directive('abntree', [
             }
             scope.tree_rows.push({
               level: level,
+              index: _i || 0, //if _i=undefined -> i==0
               branch: branch,
               label: branch.label,
               tree_icon: tree_icon,
@@ -206,7 +217,7 @@ app.directive('abntree', [
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 child = _ref[_i];
                 child_visible = visible && branch.expanded;
-                _results.push(add_branch_to_list(level + 1, child, child_visible));
+                _results.push(add_branch_to_list(level + 1, child, child_visible,_i));
               }
               return _results;
             }

@@ -2,7 +2,8 @@ app.directive('checkboxtree', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
-      template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"(row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a>\n<span class=\"indented tree-label\"><input  ng-click=\"user_clicks_branch(row)\" type='checkbox' ng-model='row.label'  /></span>\n    </a>\n  </li>\n</ul>",
+      //template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"(row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a>\n<span class=\"indented tree-label\"><input  ng-click=\"user_clicks_branch(row)\" type='checkbox' ng-model='row.label'  /></span>\n    </a>\n  </li>\n</ul>",
+      templateUrl: '../views/checkbox.html',
       replace: true,
       scope: {
         treeData: '=',
@@ -10,12 +11,7 @@ app.directive('checkboxtree', [
       },
       link: function(scope, element, attrs) {
         
-        console.dir('scope'+scope);
-        console.dir(scope);
-        console.dir('element'+element);
-        console.dir(element);
-        console.dir('attrs'+attrs);
-        console.dir(attrs);
+
 
         var for_all_ancestors,n, on_treeData_change, select_branch, selected_branch, tree;
 
@@ -23,8 +19,9 @@ app.directive('checkboxtree', [
 
 
         scope.user_clicks_branch = function(row) {
-          var oldValue=scope.tree_rows[row.index].branch.props[scope.column];
-          scope.tree_rows[row.index].branch.props[scope.column]=!oldValue;
+          var oldValue=scope.tree_rows[row.level].branch.props[scope.column];
+          scope.tree_rows[row.level].branch.props[scope.column]=!oldValue;
+
         };
 
         scope.tree_rows = [];
@@ -47,7 +44,7 @@ app.directive('checkboxtree', [
 
             scope.tree_rows.push({
               branch: branch,
-              index: level,
+              level: level,
               label: branch.props[scope.column],
               visible: visible
             });
@@ -73,8 +70,6 @@ app.directive('checkboxtree', [
             _results.push(add_branch_to_list(0, root_branch, true));
           }
           
-          console.log("_results:");
-          console.log(_results);
           return _results;
         };
 
