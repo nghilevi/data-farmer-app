@@ -17,7 +17,7 @@
       <div id="container">
 
         <div id="left-panel" class="col-md-2 .col-sm-4 col-xs-12">
-          <foldertree tree-data="menus" tree-control="my_tree" on-select="my_tree_handler(branch)" expand-level="2"></foldertree>
+          <jobtree tree-data="jobs" on-select="jobTreeHandler(branch)" expand-level="1"></jobtree>
         </div>
         
         <div id="middle-panel" class="col-md-8 .col-sm-4 col-xs-12">
@@ -50,8 +50,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js"></script>
 
-  <script src="app/directives/jobtree.js"></script>
   <script src="app/directives/foldertree.js"></script>
+  <script src="app/directives/jobtree.js"></script>
   <script src="app/directives/checkboxtree.js"></script>
   <script src="app/app.js"></script>
   <script src="app/controllers/main.js"></script>

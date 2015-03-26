@@ -14,12 +14,12 @@
   <tr>
     <!-- name columns -->
     <td class="main-column name-column">
-      <foldertree tree-data="my_data" tree-control="my_tree" expand-level="2" selected-item="selectedItem"></foldertree>
+      <foldertree tree-data="my_data" tree-control="my_tree" expand-level="4" selected-item="selectedItem"></foldertree>
     </td>
 
     <!-- checkbox columns -->
     <td class="main-column" ng-repeat="prop in prop_names">
-      <checkboxtree column="prop" tree-data="my_data"></checkboxtree>
+      <checkboxtree column="prop" tree-data="my_data" toggle-select="toggleSelect" selected-item="selectedItem"></checkboxtree>
     </td>
 
   </tr>

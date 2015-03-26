@@ -2,12 +2,13 @@ app.directive('checkboxtree', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
-      //template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"(row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a>\n<span class=\"indented tree-label\"><input  ng-click=\"user_clicks_branch(row)\" type='checkbox' ng-model='row.label'  /></span>\n    </a>\n  </li>\n</ul>",
       templateUrl: '../views/checkbox.html',
       replace: true,
       scope: {
         treeData: '=',
-        column:'='
+        column:'=',
+        toggleSelect:'=',
+        selectedItem: '=' //2 way data binding
       },
       link: function(scope, element, attrs) {
         
@@ -19,8 +20,22 @@ app.directive('checkboxtree', [
 
 
         scope.user_clicks_branch = function(row) {
-          var oldValue=scope.tree_rows[row.level].branch.props[scope.column];
-          scope.tree_rows[row.level].branch.props[scope.column]=!oldValue;
+          console.log("click job!!!");
+          scope.toggleSelect([scope.column])
+          
+          // console.log(row);
+          
+          // scope.selectedItem.label=row.branch.label;
+          // scope.selectedItem.level=row.level+1;
+          // scope.selectedItem.index='';
+          ;
+          // console.log(scope.tree_rows);
+          // console.log( scope.tree_rows[row.level]);
+          // console.log( scope.tree_rows[row.level].branch);
+          // console.log( scope.tree_rows[row.level].branch.props);
+          // console.log( scope.tree_rows[row.level].branch.props[scope.column]);
+          // var oldValue=scope.tree_rows[row.level].branch.props[scope.column];
+          // scope.tree_rows[row.level].branch.props[scope.column]=!oldValue;
 
         };
 
@@ -34,13 +49,6 @@ app.directive('checkboxtree', [
 
           add_branch_to_list = function(level, branch, visible) {
             var child, child_visible, _i, _len, _ref, _results;
-            
-            // scope.tree_rows.push({
-            //   level: level,
-            //   branch: branch,
-            //   label: branch.props[scope.column],
-            //   visible: visible
-            // });
 
             scope.tree_rows.push({
               branch: branch,

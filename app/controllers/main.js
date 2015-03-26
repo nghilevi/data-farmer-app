@@ -42,11 +42,11 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
     var fetchedData = DataService.fetchedData;
 
     $scope.prop_names=Object.keys(fetchedData[0].props);
-    $scope.menus=[
-        {"label":"Desktop"},
+    $scope.jobs=[
+        {"label":"Desktop","children":[{}]},
         {"label":"Intergrations","children":[{"label":"Intergration Jobs"}]},
-        {"label":"Reporting"},
-        {"label":"Administration"}
+        {"label":"Reporting","children":[{}]},
+        {"label":"Administration","children":[{}]}
     ];
     $scope.selectedItem={label:"",level:"",index:""};
 
@@ -55,6 +55,11 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
     $scope.lastSavedDateTime = "";
 
     // ********* Helper functions ************
+    var gotoFrame=function(path){
+      $location.path('/'+path);
+      $scope.title=path;
+    }
+
     var getCurrentDateTime=function(){
       var currDateStr = ' ';
       var currentDate = new Date(); 
@@ -72,11 +77,14 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
     var IU=$scope.prop_names[2];
     var OO=$scope.prop_names[3];
     var OU=$scope.prop_names[4];
-    
-    var toggleSelectUnselect=function(prop){
+
+    $scope.toggleSelect=function(prop){
+      console.log("toggleSelect");
+
       var label=$scope.selectedItem.label;
-      var level=$scope.selectedItem.level;
-      var index=$scope.selectedItem.index;
+      var level=$scope.selectedItem.level || 1;
+      var index=$scope.selectedItem.index || 0;
+
 
       console.log("level:"+level);
       console.log("index:"+index);
@@ -89,6 +97,7 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
       */
 
       var findOldValueStr='$scope.my_data[0]';
+
       for(l=1;l<=level;l++){
           if(level==1){
             findOldValueStr+='.props[prop]';
@@ -102,7 +111,9 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
           if(l<level){
             findOldValueStr+='.children[0]';
           }
-      }
+      }        
+      
+
 
       var oldValue=eval(findOldValueStr);
       var updateValueStr=findOldValueStr+'=!'+oldValue;
@@ -138,31 +149,34 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
     }
 
     $scope.saveAndRun=function(){
-      //TODO
       $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
-      $location.path('/schedule');
+      gotoFrame('schedule');
     }
 
     $scope.close=function(){
-      //TODO
-      $location.path('/close');
+      gotoFrame('close');
     }
 
     $scope.importOrganization=function(){
-      toggleSelectUnselect(IO);
+      $scope.toggleSelect(IO);
     }
 
     $scope.importOrganizationAndUsers=function(){
-      toggleSelectUnselect(IO);
-      toggleSelectUnselect(IU);
+      $scope.toggleSelect(IO);
+      $scope.toggleSelect(IU);
     }
 
     $scope.obsoleteOrganization=function(){
-      toggleSelectUnselect(OO);
+      $scope.toggleSelect(OO);
     }
 
     $scope.obsoleteUsers=function(){
-      toggleSelectUnselect(OU);
+      $scope.toggleSelect(OU);
+    }
+
+    $scope.jobTreeHandler=function(branch){
+      var path = branch.label;
+      gotoFrame(path);
     }
 
 });

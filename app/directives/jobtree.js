@@ -1,5 +1,3 @@
-var app = angular.module('angularBootstrapNavTree', []);
-
 app.directive('jobtree', [
   '$timeout', function($timeout) {
     return {
@@ -8,8 +6,7 @@ app.directive('jobtree', [
       replace: true,
       scope: {
         treeData: '=',
-        onSelect: '&', //isolate -> outside
-        treeControl: '=', 
+        onSelect: '&', //isolate -> outside 
         selectedItem: '=' //2 way data binding
       },
       link: function(scope, element, attrs) {
@@ -21,13 +18,13 @@ app.directive('jobtree', [
         };
 
         if (attrs.iconExpand == null) {
-          attrs.iconExpand = 'glyphicon glyphicon-folder-close';
+          attrs.iconExpand = 'glyphicon glyphicon-plus';
         }
         if (attrs.iconCollapse == null) {
-          attrs.iconCollapse = 'glyphicon glyphicon-folder-open';
+          attrs.iconCollapse = 'glyphicon glyphicon-minus';
         }
         if (attrs.iconLeaf == null) {
-          attrs.iconLeaf = 'glyphicon glyphicon-folder-close';
+          attrs.iconLeaf = 'glyphicon glyphicon-play';
         }
         if (attrs.expandLevel == null) {
           attrs.expandLevel = '3';
@@ -101,9 +98,7 @@ app.directive('jobtree', [
         };
         scope.user_clicks_branch = function(row) {
           console.log("user_clicks_branch-------------------------------");
-          scope.selectedItem.label=row.label;
-          scope.selectedItem.level=row.level;
-          scope.selectedItem.index=row.index;
+          
 
           var branch=row.branch;
 
