@@ -1,0 +1,28 @@
+<table class="table table-striped">
+<thead style="background-color: lightgray;">
+  <tr>
+    <td style="width: 280px;"></td>
+    <td class="main-column">Exist in A360</td>
+    <td class="main-column">Import Org</td>
+    <td class="main-column">Import Users</td>
+    <td class="main-column">Mark Org as Obsolete</td>
+    <td class="main-column">Mark Users as Obsolete</td>
+  </tr>  
+</thead>
+<tbody id="tbody">
+  
+  <tr>
+    
+    <!-- name columns -->
+    <td class="main-column name-column">
+      <abntree tree-data="my_data" tree-control="my_tree" on-select="my_tree_handler(branch)" expand-level="2"></abntree>
+    </td>
+
+    <!-- checkbox columns -->
+    <td class="main-column" ng-repeat="prop in prop_names">
+      <checkboxtree column="prop" tree-data="my_data"></checkboxtree>
+    </td>
+
+  </tr>
+</tbody>
+</table>
