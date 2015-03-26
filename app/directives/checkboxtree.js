@@ -20,23 +20,11 @@ app.directive('checkboxtree', [
 
 
         scope.user_clicks_branch = function(row) {
-          console.log("click job!!!");
-          scope.toggleSelect([scope.column])
-          
-          // console.log(row);
-          
-          // scope.selectedItem.label=row.branch.label;
-          // scope.selectedItem.level=row.level+1;
-          // scope.selectedItem.index='';
-          ;
-          // console.log(scope.tree_rows);
-          // console.log( scope.tree_rows[row.level]);
-          // console.log( scope.tree_rows[row.level].branch);
-          // console.log( scope.tree_rows[row.level].branch.props);
-          // console.log( scope.tree_rows[row.level].branch.props[scope.column]);
-          // var oldValue=scope.tree_rows[row.level].branch.props[scope.column];
-          // scope.tree_rows[row.level].branch.props[scope.column]=!oldValue;
-
+          console.log("user_clicks__branch_checkbox-------------------------------");
+          scope.selectedItem.label=row.label;
+          scope.selectedItem.level=row.level+1;
+          scope.selectedItem.index=row.index;
+          scope.toggleSelect([scope.column]);
         };
 
         scope.tree_rows = [];
@@ -47,11 +35,12 @@ app.directive('checkboxtree', [
 
           scope.tree_rows = [];
 
-          add_branch_to_list = function(level, branch, visible) {
+          add_branch_to_list = function(level, branch, visible,_i) { //remember to pass back _i so _i is updated again
             var child, child_visible, _i, _len, _ref, _results;
 
             scope.tree_rows.push({
               branch: branch,
+              index: _i || 0, //if _i=undefined -> i==0
               level: level,
               label: branch.props[scope.column],
               visible: visible
@@ -64,7 +53,7 @@ app.directive('checkboxtree', [
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 child = _ref[_i];
                 child_visible = visible && branch.expanded;
-                _results.push(add_branch_to_list(level + 1, child, child_visible));
+                _results.push(add_branch_to_list(level + 1, child, child_visible,_i));
               }
               return _results;
             }

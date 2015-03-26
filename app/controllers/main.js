@@ -1,56 +1,29 @@
-dtfApp.factory('DataService', function() {
-  return {
-      fetchedData : [
-        {
-          "label": 'BA-Group',
-          "props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":false},
-          "children": [
-            {
-              "label": 'BA-Group Development',
-              "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":true},
-              "children": [
-                {
-                  "label": 'North America',
-                  "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false},
-                  "children": [
-                    {
-                      "label": 'North America SubOrg1',
-                      "props":{"EA":true, "IO":true, "IU":true, "OO":false, "OU":false}
-                    },
-                    {
-                      "label": 'North America SubOrg2',
-                      "props":{"EA":true, "IO":false, "IU":false, "OO":true, "OU":false}
-                    }
-
-                  ]
-                },
-                {"label":"Functions","props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false}},
-                {"label":"Europe&Latin America","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
-                {"label":"HR Human Resources","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
-                {"label":"Org Unit for Level 2 Testing","props":{"EA":false, "IO":false, "IU":false, "OO":false, "OU":false}}
-              ]
-            }
-          ]
-        }   
-      ]
-  };
-});
-
-dtfApp.controller('MainController', function($scope, $timeout,$location,DataService) { 
+dtfApp.controller('MainController', function($scope, $http,$location) { 
     // ********* Scope variables *********
-    
-    var fetchedData = DataService.fetchedData;
+    var fetchedData=[];
 
-    $scope.prop_names=Object.keys(fetchedData[0].props);
+    var getDataFromServer = function(){
+      $http.get('models/data.json').success(function(data) {
+          fetchedData = data.slice(0);
+          $scope.my_data = fetchedData;
+          $scope.prop_names=Object.keys(fetchedData[0].props);
+          var IO=$scope.prop_names[1];
+          var IU=$scope.prop_names[2];
+          var OO=$scope.prop_names[3];
+          var OU=$scope.prop_names[4];
+      });      
+    }
+
+    getDataFromServer();
+
     $scope.jobs=[
         {"label":"Desktop","children":[{}]},
         {"label":"Intergrations","children":[{"label":"Intergration Jobs"}]},
         {"label":"Reporting","children":[{}]},
         {"label":"Administration","children":[{}]}
     ];
+    
     $scope.selectedItem={label:"",level:"",index:""};
-
-    $scope.my_data = fetchedData;
     $scope.lastRefreshDateTime = "";
     $scope.lastSavedDateTime = "";
 
@@ -73,19 +46,14 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
       return currDateStr;
     }
 
-    var IO=$scope.prop_names[1];
-    var IU=$scope.prop_names[2];
-    var OO=$scope.prop_names[3];
-    var OU=$scope.prop_names[4];
-
     $scope.toggleSelect=function(prop){
       console.log("toggleSelect");
 
       var label=$scope.selectedItem.label;
-      var level=$scope.selectedItem.level || 1;
-      var index=$scope.selectedItem.index || 0;
+      var level=$scope.selectedItem.level;
+      var index=$scope.selectedItem.index;
 
-
+      console.log("label:"+label);
       console.log("level:"+level);
       console.log("index:"+index);
 
@@ -112,8 +80,6 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
             findOldValueStr+='.children[0]';
           }
       }        
-      
-
 
       var oldValue=eval(findOldValueStr);
       var updateValueStr=findOldValueStr+'=!'+oldValue;
@@ -123,24 +89,7 @@ dtfApp.controller('MainController', function($scope, $timeout,$location,DataServ
     //Scope methods
     $scope.refresh=function(){
       $scope.lastRefreshDateTime="Last Refreshed: "+getCurrentDateTime();
-
-      console.log('BEFORE----------------------------:');
-      console.log('$scope.my_data');
-      console.log($scope.my_data[0].props);
-      
-      console.log('fetchedData:');
-      console.log(fetchedData[0].props); 
-      
-      console.log('DataService:');
-      console.log(DataService.fetchedData[0].props); 
-
-      // $scope.my_data=DataService.fetchedData;
-
-      // console.log('AFTER----------------------------:');
-      // console.log('current data:');
-      // console.log($scope.my_data);
-      
-
+      getDataFromServer();
     }
 
     $scope.save=function(){

@@ -101,7 +101,7 @@ app.directive('foldertree', [
           }
         };
         scope.user_clicks_branch = function(row) {
-          console.log("user_clicks_branch-------------------------------");
+          console.log("user_clicks__branch_folder-------------------------------");
           scope.selectedItem.label=row.label;
           scope.selectedItem.level=row.level;
           scope.selectedItem.index=row.index;

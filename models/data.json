@@ -1,0 +1,33 @@
+[
+	{
+	  "label": "BA-Group",
+	  "props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":false},
+	  "children": [
+			{
+			  "label": "BA-Group Development",
+			  "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":true},
+			  "children": [
+			        {
+			          "label": "North America",
+			          "props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false},
+			          "children": [
+			            {
+			              "label": "North America SubOrg1",
+			              "props":{"EA":true, "IO":true, "IU":true, "OO":false, "OU":false}
+			            },
+			            {
+			              "label": "North America SubOrg2",
+			              "props":{"EA":true, "IO":false, "IU":false, "OO":true, "OU":false}
+			            }
+
+			          ]
+			        },
+			        {"label":"Functions","props":{"EA":true, "IO":true, "IU":false, "OO":false, "OU":false}},
+			        {"label":"Europe&Latin America","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
+			        {"label":"HR Human Resources","props":{"EA":true, "IO":false, "IU":false, "OO":false, "OU":true}},
+			        {"label":"Org Unit for Level 2 Testing","props":{"EA":false, "IO":false, "IU":false, "OO":false, "OU":false}}
+			    ]
+			}
+	  	]
+	}   
+]
