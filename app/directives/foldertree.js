@@ -242,6 +242,7 @@ app.directive('foldertree', [
           if (angular.isObject(scope.treeControl)) {
             tree = scope.treeControl;
             tree.expand_all = function() {
+              console.log("expand!");
               return for_each_branch(function(b, level) {
                 return b.expanded = true;
               });

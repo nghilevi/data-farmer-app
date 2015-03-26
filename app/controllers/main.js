@@ -1,17 +1,32 @@
-dtfApp.controller('MainController', function($scope, $http,$location) { 
+dtfApp.controller('MainController', function($scope, $http,$timeout,$location) { 
     // ********* Scope variables *********
-    var fetchedData=[];
-
+    var fetchedData=[],col1,col2,col3,col4,savedData;
+    $scope.my_tree = tree = {};
     var getDataFromServer = function(){
-      $http.get('models/data.json').success(function(data) {
-          fetchedData = data.slice(0);
-          $scope.my_data = fetchedData;
-          $scope.prop_names=Object.keys(fetchedData[0].props);
-          var IO=$scope.prop_names[1];
-          var IU=$scope.prop_names[2];
-          var OO=$scope.prop_names[3];
-          var OU=$scope.prop_names[4];
-      });      
+      //get data from local storage
+      savedData = JSON.parse(localStorage.getItem('savedData'));
+      if(!savedData){
+        $http.get('models/data.json').success(function(data) {
+          populateData(data);
+        }); 
+      }else{
+        populateData(savedData);
+      }
+
+      function populateData(data){
+        fetchedData = data.slice(0);
+        $scope.my_data = fetchedData;
+        $scope.prop_names=Object.keys(fetchedData[0].props);
+        col1=$scope.prop_names[1];
+        col2=$scope.prop_names[2];
+        col3=$scope.prop_names[3];
+        col4=$scope.prop_names[4];
+        $timeout(function() {
+          return tree.expand_all(); //expand the tree after 1sec
+        }, 500);
+      }
+
+      $scope.selectedItem={label:"",level:"",index:""};     
     }
 
     getDataFromServer();
@@ -22,8 +37,8 @@ dtfApp.controller('MainController', function($scope, $http,$location) {
         {"label":"Reporting","children":[{}]},
         {"label":"Administration","children":[{}]}
     ];
+
     
-    $scope.selectedItem={label:"",level:"",index:""};
     $scope.lastRefreshDateTime = "";
     $scope.lastSavedDateTime = "";
 
@@ -57,33 +72,38 @@ dtfApp.controller('MainController', function($scope, $http,$location) {
       console.log("level:"+level);
       console.log("index:"+index);
 
-      /*
-      Use eval eg. change North America, level 3, index 1
-      var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
-      $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
-      Another way is to update a data
-      */
+      if(level ==""){
+        alert("Please select a row first");
+      }else{
+        /*
+        Use eval eg. change North America, level 3, index 1
+        var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
+        $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+        Another way is to update a data
+        */
 
-      var findOldValueStr='$scope.my_data[0]';
+        var findOldValueStr='$scope.my_data[0]';
 
-      for(l=1;l<=level;l++){
-          if(level==1){
-            findOldValueStr+='.props[prop]';
-            break;
-          }
-          if(l==level-1){
-            findOldValueStr+='.children[index].props[prop]';
-            break;
-          }
+        for(l=1;l<=level;l++){
+            if(level==1){
+              findOldValueStr+='.props[prop]';
+              break;
+            }
+            if(l==level-1){
+              findOldValueStr+='.children[index].props[prop]';
+              break;
+            }
 
-          if(l<level){
-            findOldValueStr+='.children[0]';
-          }
-      }        
+            if(l<level){
+              findOldValueStr+='.children[0]';
+            }
+        }        
 
-      var oldValue=eval(findOldValueStr);
-      var updateValueStr=findOldValueStr+'=!'+oldValue;
-      eval(updateValueStr);
+        var oldValue=eval(findOldValueStr);
+        var updateValueStr=findOldValueStr+'=!'+oldValue;
+        eval(updateValueStr);
+
+      }
     }
 
     //Scope methods
@@ -93,12 +113,13 @@ dtfApp.controller('MainController', function($scope, $http,$location) {
     }
 
     $scope.save=function(){
+      var savedData = JSON.stringify($scope.my_data);
+      localStorage.setItem('savedData', savedData);
       $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
-      fetchedData=$scope.my_data;
     }
 
     $scope.saveAndRun=function(){
-      $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
+      $scope.save();
       gotoFrame('schedule');
     }
 
@@ -107,25 +128,28 @@ dtfApp.controller('MainController', function($scope, $http,$location) {
     }
 
     $scope.importOrganization=function(){
-      $scope.toggleSelect(IO);
+      $scope.toggleSelect(col1);
     }
 
     $scope.importOrganizationAndUsers=function(){
-      $scope.toggleSelect(IO);
-      $scope.toggleSelect(IU);
+      $scope.toggleSelect(col1);
+      $scope.toggleSelect(col2);
     }
 
     $scope.obsoleteOrganization=function(){
-      $scope.toggleSelect(OO);
+      $scope.toggleSelect(col3);
     }
 
     $scope.obsoleteUsers=function(){
-      $scope.toggleSelect(OU);
+      $scope.toggleSelect(col4);
     }
 
     $scope.jobTreeHandler=function(branch){
       var path = branch.label;
       gotoFrame(path);
+      if(path="Intergration Jobs"){
+        getDataFromServer();
+      }
     }
 
 });
