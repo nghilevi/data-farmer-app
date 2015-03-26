@@ -22,7 +22,7 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
         col3=$scope.prop_names[3];
         col4=$scope.prop_names[4];
         $timeout(function() {
-          return tree.expand_all(); //expand the tree after 1sec
+          tree.expand_all(); //expand the tree after 1sec
         }, 500);
       }
 
