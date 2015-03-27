@@ -190,6 +190,11 @@ app.directive('foldertree', [
             }
           });
           add_branch_to_list = function(level, branch, visible,_i) {
+            // console.log('add branch to list--------------------------');
+            // console.log('level:'+level);
+            // console.log('label:'+branch.label);
+            // console.log('visible:'+visible);
+            // console.log('index:'+_i);
             var child, child_visible, tree_icon, _i, _len, _ref, _results;
             if (branch.expanded == null) {
               branch.expanded = false;
@@ -221,13 +226,15 @@ app.directive('foldertree', [
               }
               return _results;
             }
+
           };
           _ref = scope.treeData;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             root_branch = _ref[_i];
-            _results.push(add_branch_to_list(1, root_branch, true));
+            _results.push(add_branch_to_list(1, root_branch, true)); //no need for _results?
           }
+          
           return _results;
         };
         scope.$watch('treeData', on_treeData_change, true);

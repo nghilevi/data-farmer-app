@@ -68,42 +68,76 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
       var level=$scope.selectedItem.level;
       var index=$scope.selectedItem.index;
 
-      console.log("label:"+label);
-      console.log("level:"+level);
-      console.log("index:"+index);
-
-      if(level ==""){
-        alert("Please select a row first");
-      }else{
-        /*
-        Use eval eg. change North America, level 3, index 1
-        var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
-        $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
-        Another way is to update a data
-        */
-
-        var findOldValueStr='$scope.my_data[0]';
-
-        for(l=1;l<=level;l++){
-            if(level==1){
-              findOldValueStr+='.props[prop]';
-              break;
-            }
-            if(l==level-1){
-              findOldValueStr+='.children[index].props[prop]';
-              break;
-            }
-
-            if(l<level){
-              findOldValueStr+='.children[0]';
-            }
-        }        
-
-        var oldValue=eval(findOldValueStr);
-        var updateValueStr=findOldValueStr+'=!'+oldValue;
-        eval(updateValueStr);
-
+      //Solution 1: using recursion --------------------------------------------------
+      var result=[];
+      function returnChildren(current, depth) {
+          var children = current.children;
+          var result=[];
+          for (var i = 0, len = children.length; i < len; i++) {
+            var current_props = children[i].props;
+            if ((depth==level) && index==i){
+              current_props[prop]=!current_props[prop];
+            };            
+            children[i].props=current_props;
+            result.push({
+              label: children[i].label,
+              props: children[i].props,
+              children: returnChildren(children[i], depth + 1)
+            });
+          }
+          return result;
       }
+      
+      var current_props = $scope.my_data[0].props;
+      if ((1==level) && index==0){
+        current_props[prop]=!current_props[prop];
+      };
+      $scope.my_data[0].props=current_props;
+      result.push({
+        label: $scope.my_data[0].label,
+        props: $scope.my_data[0].props,
+        children: returnChildren($scope.my_data[0], 2)
+      });
+
+
+      $scope.my_data=result;
+
+      $timeout(function() {
+          tree.expand_all(); 
+      }, 1);
+
+      //Solution 2: using eval --------------------------------------------------
+      // if(level ==""){
+      //   alert("Please select a row first");
+      // }else{
+      //   /*
+      //   Use eval eg. change North America, level 3, index 0
+      //   var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
+      //   $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+      //   Another way is to update a data
+      //   */
+ 
+      //   var findOldValueStr='$scope.my_data[0]'; //root
+
+      //   for(l=1;l<=level;l++){
+      //       if(level==1){ //also the root level
+      //         findOldValueStr+='.props[prop]';
+      //         break;
+      //       }
+      //       if(l==level-1){
+      //         findOldValueStr+='.children[index].props[prop]';
+      //         break;
+      //       }
+
+      //       if(l<level){
+      //         findOldValueStr+='.children[0]';
+      //       }
+      //   }        
+
+      //   var oldValue=eval(findOldValueStr);
+      //   var updateValueStr=findOldValueStr+'=!'+oldValue;
+      //   eval(updateValueStr);
+      // }
     }
 
     //Scope methods

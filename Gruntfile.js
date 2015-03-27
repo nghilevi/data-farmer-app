@@ -9,13 +9,11 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	// grunt.loadNpmTasks('grunt-contrib-sass');
-	
+	 
 	grunt.initConfig({
 		concat: {
 			scripts: {
-				src: ['dev/scripts/autocomplete.js',
-				'dev/scripts/angularapp.js',
-				'dev/scripts/controllers/main.js'],
+				src: ["app/directives/foldertree.js","app/directives/jobtree.js","app/directives/checkboxtree.js","app/app.js","app/controllers/main.js"],
 				dest: 'dist/scripts/app.js'
 			},
 			styles: {
@@ -28,13 +26,6 @@ module.exports = function(grunt){
 				dest: 'dist/styles/app.css'
 			}
 		},
-		// sass: {
-		// 	app: {
-		// 		files: {
-		// 			'tmp/app.css': ['sass/style.scss'] //not use yet
-		// 		}
-		// 	}
-		// },
 		copy: { //copy json file
 		  main: {
 		    src: 'dev/models/data.json',

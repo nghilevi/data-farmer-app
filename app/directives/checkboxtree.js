@@ -21,7 +21,7 @@ app.directive('checkboxtree', [
 
         scope.user_clicks_branch = function(row) {
           console.log("user_clicks__branch_checkbox-------------------------------");
-          scope.selectedItem.label=row.label;
+          scope.selectedItem.label=row.branch.label;
           scope.selectedItem.level=row.level+1;
           scope.selectedItem.index=row.index;
           scope.toggleSelect([scope.column]);
