@@ -1,8 +1,29 @@
+// be prepare for minification - http://stackoverflow.com/questions/21211695/angularjs-inject-service-into-directive
 
 var app = angular.module('angularBootstrapNavTree', []);
 
-app.directive('baFoldertree', [
-  '$timeout', function($timeout) {
+app.factory('treeService', function () {
+  var registerIcon = function(attrs,expandLevel,iconExpand,iconCollapse,iconLeaf){
+    if (attrs.iconExpand == null) {
+      attrs.iconExpand = 'glyphicon '+iconExpand;
+    }
+    if (attrs.iconCollapse == null) {
+      attrs.iconCollapse = 'glyphicon '+iconCollapse;
+    }
+    if (attrs.iconLeaf == null) {
+      attrs.iconLeaf = 'glyphicon '+iconLeaf;
+    }
+    if (attrs.expandLevel == null) {
+      attrs.expandLevel = expandLevel ;
+    }
+  } 
+
+  return { 
+    registerIcons : registerIcon
+  };
+});
+
+app.directive('baFoldertree',function($timeout,treeService) {
     return {
       restrict: 'E',
       templateUrl: '../views/foldertree.html',
@@ -10,25 +31,11 @@ app.directive('baFoldertree', [
       require:'baFoldertree',
       scope: {
         treeData: '=',
-        selectedItem: '=', //2 way data binding
-        onSelect: '&', //isolate -> outside
+        selectedItem: '=',
+        onSelect: '&',
         treeControl: '='
       },
       controller: function ($scope) {
-      	this.registerAttrs = function(attrs){
-          if (attrs.iconExpand == null) {
-            attrs.iconExpand = 'glyphicon glyphicon-folder-close';
-          }
-          if (attrs.iconCollapse == null) {
-            attrs.iconCollapse = 'glyphicon glyphicon-folder-open';
-          }
-          if (attrs.iconLeaf == null) {
-            attrs.iconLeaf = 'glyphicon glyphicon-folder-close';
-          }
-          if (attrs.expandLevel == null) {
-            attrs.expandLevel = '3';
-          }
-        };
 
         var for_each_branch = function(f) {
           var do_f, root_branch, _i, _len, _ref, _results;
@@ -85,7 +92,7 @@ app.directive('baFoldertree', [
         };
 
         this.selected_branch=null;
-        
+
         this.select_branch = function(branch,selected_branch) {
           console.log("branch: "+branch);
           console.log("selected_branch: "+selected_branch);
@@ -127,13 +134,13 @@ app.directive('baFoldertree', [
       },
       link: function(scope, element, attrs,baFoldertreeCtrl) {
 
-        var error = function(s) {
-          console.log('ERROR:' + s);
-          debugger;
-          return void 0;
-        };
+        var expandLevel='3',
+            iconExpand='glyphicon-folder-close',
+            iconCollapse='glyphicon-folder-open',
+            iconLeaf='glyphicon-folder-close';
+
+        treeService.registerIcons(attrs,expandLevel,iconExpand,iconCollapse,iconLeaf);
         
-        baFoldertreeCtrl.registerAttrs(attrs);
         var for_each_branch    =  baFoldertreeCtrl.for_each_branch;
         var get_parent         =  baFoldertreeCtrl.get_parent;
         var select_branch      =  baFoldertreeCtrl.select_branch;
@@ -512,8 +519,67 @@ app.directive('baFoldertree', [
         }
       }
     };
-  }
-]);
+});
+
+
+
+app.directive("menu", function() {
+  return {
+    restrict: "E",
+    replace: true,
+    scope: {
+      treeData: '=',
+      selectedItem: '=',
+      onSelect: '&'
+    },
+    require: ["^baFoldertree","jobtree"],
+    controller: function ($scope) {
+      this.registerAttrs = function(attrs){
+        if (attrs.iconExpand == null) {
+          attrs.iconExpand = 'glyphicon glyphicon-plus';
+        }
+        if (attrs.iconCollapse == null) {
+          attrs.iconCollapse = 'glyphicon glyphicon-minus';
+        }
+        if (attrs.iconLeaf == null) {
+          attrs.iconLeaf = 'glyphicon glyphicon-play';
+        }
+        if (attrs.expandLevel == null) {
+          attrs.expandLevel = '3';
+        }
+      };      
+    },
+    link: function (scope, element, attrs, ctrl) {
+      var baFoldertreeCtrl=ctrl[0],jobtreeCtrl=ctrl[1];
+      jobtreeCtrl.registerAttrs(attrs);
+
+      scope.user_clicks_branch2 = function(row) {
+        console.log("jobtree: user_clicks_branch-------------");
+        var branch=row.branch;
+
+        if (branch !== selected_branch) {
+          return select_branch(branch);
+        }
+      };
+    }
+  };
+});
+
+
+// app.directive('nghi',function(){
+//   return{
+//     require: ['superHero','nghi'],
+//     template: '<h1>Nghi</h1>',
+//     replace:true,
+//     controller: function(){
+//       this.data="inside Nghi controller";
+//     },
+//     link: function(scope, element, attrs,ctrl) {
+//       console.log(ctrl[0]);
+//       console.log(ctrl[1]);
+//     }
+//   }
+// });
 
 
 

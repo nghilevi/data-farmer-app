@@ -1,34 +1,24 @@
-app.directive('jobtree', [
-  '$timeout', function($timeout) {
+app.directive('jobtree', function($timeout,treeService) {
     return {
       restrict: 'E',
       templateUrl: '../views/jobtree.html',
       replace: true,
       scope: {
         treeData: '=',
-        onSelect: '&', //isolate -> outside 
-        selectedItem: '=' //2 way data binding
+        onSelect: '&',
+        selectedItem: '='
       },
       link: function(scope, element, attrs) {
-        var error, expand_all_parents, expand_level, for_all_ancestors, for_each_branch, get_parent, n, on_treeData_change, select_branch, selected_branch, tree;
-        error = function(s) {
-          console.log('ERROR:' + s);
-          debugger;
-          return void 0;
-        };
+        var expand_all_parents, expand_level, for_all_ancestors, for_each_branch, get_parent, n, on_treeData_change, select_branch, selected_branch, tree;
 
-        if (attrs.iconExpand == null) {
-          attrs.iconExpand = 'glyphicon glyphicon-plus';
-        }
-        if (attrs.iconCollapse == null) {
-          attrs.iconCollapse = 'glyphicon glyphicon-minus';
-        }
-        if (attrs.iconLeaf == null) {
-          attrs.iconLeaf = 'glyphicon glyphicon-play';
-        }
-        if (attrs.expandLevel == null) {
-          attrs.expandLevel = '3';
-        }
+        var expandLevel='3',
+            iconExpand='glyphicon-plus',
+            iconCollapse='glyphicon-minus',
+            iconLeaf='glyphicon-play';
+
+        treeService.registerIcons(attrs,expandLevel,iconExpand,iconCollapse,iconLeaf);
+
+        
         expand_level = parseInt(attrs.expandLevel, 10);
         if (!scope.treeData) {
           alert('no treeData defined for the tree!');
@@ -473,7 +463,7 @@ app.directive('jobtree', [
       }
     };
   }
-]);
+);
 
 
 
