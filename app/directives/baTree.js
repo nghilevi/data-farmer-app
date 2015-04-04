@@ -12,7 +12,7 @@ treeDirective.directive('baTree',['$timeout',function($timeout) {
         onSelect: '&',
         treeControl: '='
       },
-      controller: function ($scope) {
+      controller: ['$scope',function ($scope) {
 
         var for_each_branch = function(f) {
           var do_f, root_branch, _i, _len, _ref, _results;
@@ -108,7 +108,7 @@ treeDirective.directive('baTree',['$timeout',function($timeout) {
         this.get_parent = get_parent;
         this.for_each_branch = for_each_branch;
 
-      },
+      }],
       link: function(scope, element, attrs,baFoldertreeCtrl) {
 
         var registerIcons = function(attrs,pattern){
