@@ -1,4 +1,4 @@
-app.directive('checkboxtree', [
+app.directive('baCheckboxtree2', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
@@ -6,19 +6,21 @@ app.directive('checkboxtree', [
       replace: true,
       scope: {
         treeData: '=',
+        selectedItem: '=', 
         column:'=',
-        toggleSelect:'=',
-        selectedItem: '=' //2 way data binding
+        toggleSelect:'='
       },
       link: function(scope, element, attrs) {
         
-
-
-        var for_all_ancestors,n, on_treeData_change, select_branch, selected_branch, tree;
-
-        selected_branch = null;
+        var on_treeData_change, select_branch, 
+          selected_branch = null,
+          selected_column = null;
 
         select_branch = function(branch) {
+          if (selected_branch != null) {
+            selected_branch.selected = false;
+          }
+
           if (!branch) {
             if (selected_branch != null) {
               selected_branch.selected = false;
@@ -26,41 +28,31 @@ app.directive('checkboxtree', [
             selected_branch = null;
             return;
           }
-          if (branch !== selected_branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            branch.selected = true;
-            selected_branch = branch;
-            if (branch.onSelect != null) {
-              return $timeout(function() {
-                return branch.onSelect(branch);
-              });
-            } else {
-              if (scope.onSelect != null) {
-                return $timeout(function() {
-                  return scope.onSelect({
-                    branch: branch
-                  });
-                });
-              }
-            }
-          }
+
+
+          branch.selected = true;
+          selected_branch = branch;
+          selected_column = scope.column;
+
         };
         
         scope.user_clicks_branch = function(row) {
           console.log("user_clicks__branch_checkbox-------------------------------");
-          scope.selectedItem.label=row.branch.label;
+          var branch=row.branch;
+          scope.selectedItem.label=branch.label;
           scope.selectedItem.level=row.level+1;
           scope.selectedItem.index=row.index;
-          scope.toggleSelect([scope.column]);
+          scope.selectedItem.prop=scope.column;
 
-          
-          var branch=row.branch;
-
+          //If the click branch!=previous selected branch
           if (branch !== selected_branch) {
-            return select_branch(branch);
+            select_branch(branch);
           }
+
+          $timeout(function(){
+            scope.toggleSelect(scope.column)
+          });
+
         };
 
         scope.tree_rows = [];

@@ -1,6 +1,6 @@
 dtfApp.controller('MainController', function($scope, $http,$timeout,$location) { 
     // ********* Scope variables *********
-    var fetchedData=[],col1,col2,col3,col4,savedData;
+    var col1,col2,col3,col4,savedData;
     $scope.my_tree = tree = {};
     var getDataFromServer = function(){
       //get data from local storage
@@ -14,19 +14,19 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
       }
 
       function populateData(data){
-        fetchedData = data.slice(0);
-        $scope.my_data = fetchedData;
-        $scope.prop_names=Object.keys(fetchedData[0].props);
+        $scope.my_data = data;
+        $scope.prop_names=Object.keys(data[0].props);
         col1=$scope.prop_names[1];
         col2=$scope.prop_names[2];
         col3=$scope.prop_names[3];
         col4=$scope.prop_names[4];
+
         $timeout(function() {
           tree.expand_all(); //expand the tree after 1sec
         }, 500);
       }
 
-      $scope.selectedItem={label:"",level:"",index:""};     
+      $scope.selectedItem={label:"",level:"",index:"",prop:""};     
     }
 
     getDataFromServer();
@@ -67,77 +67,78 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
       var label=$scope.selectedItem.label;
       var level=$scope.selectedItem.level;
       var index=$scope.selectedItem.index;
+      var selectedProp=$scope.selectedItem.prop; //column
 
-      //Solution 1: using recursion --------------------------------------------------
-      var result=[];
-      function returnChildren(current, depth) {
-          var children = current.children;
-          var result=[];
-          for (var i = 0, len = children.length; i < len; i++) {
-            var current_props = children[i].props;
-            if ((depth==level) && index==i){
-              current_props[prop]=!current_props[prop];
-            };            
-            children[i].props=current_props;
-            result.push({
-              label: children[i].label,
-              props: children[i].props,
-              children: returnChildren(children[i], depth + 1)
-            });
-          }
-          return result;
-      }
-      
-      var current_props = $scope.my_data[0].props;
-      if ((1==level) && index==0){
-        current_props[prop]=!current_props[prop];
-      };
-      $scope.my_data[0].props=current_props;
-      result.push({
-        label: $scope.my_data[0].label,
-        props: $scope.my_data[0].props,
-        children: returnChildren($scope.my_data[0], 2)
-      });
+      if(level ==""){
+        alert("Please select a row first");
+      }else{
 
+        //Solution 1: using recursion --------------------------------------------------
+        var result=[];
+        function returnChildren(current, depth) {
+            var children = current.children;
+            var result=[];
+            for (var i = 0, len = children.length; i < len; i++) {
+              var current_props = children[i].props;
+              if ((depth==level) && index==i){
+                current_props[prop]=!current_props[prop];
+              };            
+              children[i].props=current_props;
+              result.push({
+                label: children[i].label,
+                props: children[i].props,
+                children: returnChildren(children[i], depth + 1)
+              });
+            }
+            return result;
+        }
+        
+        var current_props = $scope.my_data[0].props;
+        if ((1==level) && index==0){
+          current_props[prop]=!current_props[prop];
+        };
+        $scope.my_data[0].props=current_props;
+        result.push({
+          label: $scope.my_data[0].label,
+          props: $scope.my_data[0].props,
+          children: returnChildren($scope.my_data[0], 2)
+        });
+        $scope.my_data=result;
+        $timeout(function() {
+            tree.expand_all(); 
+        });
 
-      $scope.my_data=result;
+        //Solution 2: using eval --------------------------------------------------
+        /*
+        Use eval eg. change North America, level 3, index 0
+        var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
+        $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+        Another way is to update using mongoDB 
+        */
 
-      $timeout(function() {
-          tree.expand_all(); 
-      }, 1);
-
-      //Solution 2: using eval --------------------------------------------------
-      // if(level ==""){
-      //   alert("Please select a row first");
-      // }else{
-      //   /*
-      //   Use eval eg. change North America, level 3, index 0
-      //   var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
-      //   $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
-      //   Another way is to update a data
-      //   */
+        //non stable when click on checkbox
  
-      //   var findOldValueStr='$scope.my_data[0]'; //root
+        // var findOldValueStr='$scope.my_data[0]'; //root
 
-      //   for(l=1;l<=level;l++){
-      //       if(level==1){ //also the root level
-      //         findOldValueStr+='.props[prop]';
-      //         break;
-      //       }
-      //       if(l==level-1){
-      //         findOldValueStr+='.children[index].props[prop]';
-      //         break;
-      //       }
+        // for(l=1;l<=level;l++){
+        //     if(level==1){ //also the root level
+        //       findOldValueStr+='.props[prop]';
+        //       break;
+        //     }
+        //     if(l==level-1){
+        //       findOldValueStr+='.children[index].props[prop]';
+        //       break;
+        //     }
 
-      //       if(l<level){
-      //         findOldValueStr+='.children[0]';
-      //       }
-      //   }        
+        //     if(l<level){
+        //       findOldValueStr+='.children[0]';
+        //     }
+        // }        
 
-      //   var oldValue=eval(findOldValueStr);
-      //   var updateValueStr=findOldValueStr+'=!'+oldValue;
-      //   eval(updateValueStr);
-      // }
+        // var oldValue=eval(findOldValueStr);
+        // var updateValueStr=findOldValueStr+'=!'+oldValue;
+        // eval(updateValueStr);
+      }
     }
 
     //Scope methods
