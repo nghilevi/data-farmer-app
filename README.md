@@ -1,11 +1,19 @@
-[Demo](http://www.codingisloving.com/WEBAPPS/datafarmer/index.html)
+## About
+Here is the [demo](http://www.codingisloving.com/WEBAPPS/datafarmer/index.html) of the project.This is based on my own understanding of the UI design. The projet is built using mainly AngularJS, Bootstrap and Grunt. 
 
-To see the demo locally:
+The app uses 2 directives (app/directives) named baCheckboxtree (for the checkboxes' columns) and baTree (for organizations tree & menu navigation). This directive is built based on [angular-bootstrap-nav-tree](https://github.com/nickperkinslondon/angular-bootstrap-nav-tree)
+
+The app don't have backend implementation but instead HTML5 local storage to simulate the save and refresh features.
+
+## Usage
+To view the demo locally, follow these steps:
 
 _ Download & unzip the repo package
 
-_ Go to dtfApp folder, type in the cmd/terminal "node server.js"
+_ Go to repo's folder, type "node server.js" in the cmd/terminal
 
-_ Open your browser, go to localhost:3000 (you can change the port in server.js)
+_ Open your browser, go to "http://localhost:3000/#/" or "http://localhost:3000/dist/#/" (you can change the port in server.js)
 
-This is a nice challenge, I would work more on this when I have free time.
+* Notice: click on the plus icon to expand the view
+
+
