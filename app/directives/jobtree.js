@@ -20,18 +20,7 @@ app.directive('jobtree', function($timeout,treeService) {
 
         
         expand_level = parseInt(attrs.expandLevel, 10);
-        if (!scope.treeData) {
-          alert('no treeData defined for the tree!');
-          return;
-        }
-        if (scope.treeData.length == null) {
-          if (treeData.label != null) {
-            scope.treeData = [treeData];
-          } else {
-            alert('treeData should be an array of root branches');
-            return;
-          }
-        }
+
         for_each_branch = function(f) {
           var do_f, root_branch, _i, _len, _ref, _results;
           do_f = function(branch, level) {
@@ -122,7 +111,7 @@ app.directive('jobtree', function($timeout,treeService) {
             return b.expanded = true;
           });
         };
-        scope.tree_rows = [];
+        
         on_treeData_change = function() {
           var add_branch_to_list, root_branch, _i, _len, _ref, _results;
           for_each_branch(function(b, level) {

@@ -17,9 +17,19 @@
       <div id="container">
 
         <div id="left-panel" class="col-md-2 .col-sm-4 col-xs-12">
-          <jobtree tree-data="jobs" on-select="jobTreeHandler(branch)" expand-level="1"></jobtree>
+          <!-- <jobtree 
+            tree-data="jobs"
+            expand-level="1" 
+            on-select="jobTreeHandler(branch)" 
+          ></jobtree> -->
 
-          <ba-foldertree><menu tree-data="jobs" on-select="jobTreeHandler(branch)" expand-level="1"></menu></ba-foldertree>
+          <ba-foldertree 
+            tree-data="jobs"
+            expand-level="1"  
+            selected-item="selectedItem"
+            pattern="operator"
+            on-select="jobTreeHandler(branch)"
+          ></ba-foldertree>
         </div>
         
         <div id="middle-panel" class="col-md-8 .col-sm-4 col-xs-12">

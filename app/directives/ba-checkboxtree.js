@@ -11,31 +11,7 @@ app.directive('baCheckboxtree', [
         toggleSelect:'='
       },
       link: function(scope, element, attrs) {
-        
-        var on_treeData_change, select_branch, 
-          selected_branch = null,
-          selected_column = null;
 
-        select_branch = function(branch) {
-          if (selected_branch != null) {
-            selected_branch.selected = false;
-          }
-
-          if (!branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            selected_branch = null;
-            return;
-          }
-
-
-          branch.selected = true;
-          selected_branch = branch;
-          selected_column = scope.column;
-
-        };
-        
         scope.user_clicks_branch = function(row) {
           console.log("user_clicks__branch_checkbox-------------------------------");
           var branch=row.branch;
@@ -43,20 +19,13 @@ app.directive('baCheckboxtree', [
           scope.selectedItem.level=row.level+1;
           scope.selectedItem.index=row.index;
           scope.selectedItem.prop=scope.column;
-
-          //If the click branch!=previous selected branch
-          if (branch !== selected_branch) {
-            select_branch(branch);
-          }
-
           $timeout(function(){
             scope.toggleSelect(scope.column)
           });
-
         };
 
-        scope.tree_rows = [];
-        on_treeData_change = function() {
+      
+        var on_treeData_change = function() {
           console.log('on_treeData_change!!!');
 
           var add_branch_to_list, root_branch, _i, _len, _ref, _results;

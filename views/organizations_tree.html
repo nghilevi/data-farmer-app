@@ -18,7 +18,13 @@
       <foldertree tree-data="my_data" tree-control="my_tree" expand-level="4" selected-item="selectedItem"></foldertree>
     </td> -->
     <td class="main-column name-column">
-      <ba-foldertree tree-data="my_data" tree-control="my_tree" expand-level="4" selected-item="selectedItem"></ba-foldertree>
+      <ba-foldertree 
+        tree-data="my_data" 
+        expand-level="4" 
+        selected-item="selectedItem"
+        pattern="folder"
+        tree-control="my_tree" 
+      ></ba-foldertree>
     </td>
     <!-- checkbox columns -->
 <!--     <td class="main-column" ng-repeat="prop in prop_names">

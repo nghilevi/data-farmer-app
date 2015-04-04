@@ -113,10 +113,9 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
         Use eval eg. change North America, level 3, index 0
         var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
         $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+        Comment: non stable when click on checkbox
         Another way is to update using mongoDB 
         */
-
-        //non stable when click on checkbox
  
         // var findOldValueStr='$scope.my_data[0]'; //root
 
