@@ -2,7 +2,7 @@ var dtfApp = angular.module('dtfApp', [
   'ngRoute','ngAnimate','angularBootstrapNavTree'
 ])
 
-dtfApp.config(function ($routeProvider) {
+dtfApp.config(['$routeProvider',function ($routeProvider) {
   $routeProvider
     .when('/', {
       templateUrl: 'views/home.html'
@@ -13,4 +13,4 @@ dtfApp.config(function ($routeProvider) {
     .otherwise({
       templateUrl: 'views/404.html'
     });
-});
+}]);

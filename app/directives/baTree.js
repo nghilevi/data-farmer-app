@@ -1,52 +1,20 @@
-var app = angular.module('angularBootstrapNavTree', []);
+var treeDirective = angular.module('angularBootstrapNavTree', []);
 
-app.directive('foldertree', [
-  '$timeout', function($timeout) {
+treeDirective.directive('baTree',['$timeout',function($timeout) {
     return {
       restrict: 'E',
-      //template: "<ul class=\"nav nav-list nav-pills nav-stacked abn-tree\">\n  <li ng-repeat=\"row in tree_rows | filter:{visible:true} track by row.branch.uid\" ng-animate=\"'abn-tree-animate'\" ng-class=\"'level-' + {{ row.level }} + (row.branch.selected ? ' active':'')\" class=\"abn-tree-row\">\n    <a ng-click=\"user_clicks_branch(row.branch)\">\n      <i ng-class=\"row.tree_icon\" ng-click=\"row.branch.expanded = !row.branch.expanded\" class=\"indented tree-icon\"> </i>\n      <span class=\"indented tree-label\">{{ row.label }} </span>\n    </a>\n  </li>\n</ul>",
-      templateUrl: '../views/foldertree.html',
+      templateUrl: '../views/baTree.html',
       replace: true,
+      require:'baTree',
       scope: {
         treeData: '=',
-        onSelect: '&', //isolate -> outside
-        treeControl: '=', 
-        selectedItem: '=' //2 way data binding
+        selectedItem: '=',
+        onSelect: '&',
+        treeControl: '='
       },
-      link: function(scope, element, attrs) {
-        var error, expand_all_parents, expand_level, for_all_ancestors, for_each_branch, get_parent, n, on_treeData_change, select_branch, selected_branch, tree;
-        error = function(s) {
-          console.log('ERROR:' + s);
-          debugger;
-          return void 0;
-        };
+      controller: function ($scope) {
 
-        if (attrs.iconExpand == null) {
-          attrs.iconExpand = 'glyphicon glyphicon-folder-close';
-        }
-        if (attrs.iconCollapse == null) {
-          attrs.iconCollapse = 'glyphicon glyphicon-folder-open';
-        }
-        if (attrs.iconLeaf == null) {
-          attrs.iconLeaf = 'glyphicon glyphicon-folder-close';
-        }
-        if (attrs.expandLevel == null) {
-          attrs.expandLevel = '3';
-        }
-        expand_level = parseInt(attrs.expandLevel, 10);
-        if (!scope.treeData) {
-          alert('no treeData defined for the tree!');
-          return;
-        }
-        if (scope.treeData.length == null) {
-          if (treeData.label != null) {
-            scope.treeData = [treeData];
-          } else {
-            alert('treeData should be an array of root branches');
-            return;
-          }
-        }
-        for_each_branch = function(f) {
+        var for_each_branch = function(f) {
           var do_f, root_branch, _i, _len, _ref, _results;
           do_f = function(branch, level) {
             var child, _i, _len, _ref, _results;
@@ -61,6 +29,8 @@ app.directive('foldertree', [
               return _results;
             }
           };
+
+          var scope = $scope || scope;
           _ref = scope.treeData;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -69,52 +39,8 @@ app.directive('foldertree', [
           }
           return _results;
         };
-        selected_branch = null;
-        select_branch = function(branch) {
-          if (!branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            selected_branch = null;
-            return;
-          }
-          if (branch !== selected_branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            branch.selected = true;
-            selected_branch = branch;
-            expand_all_parents(branch);
-            if (branch.onSelect != null) {
-              return $timeout(function() {
-                return branch.onSelect(branch);
-              });
-            } else {
-              if (scope.onSelect != null) {
-                return $timeout(function() {
-                  return scope.onSelect({
-                    branch: branch
-                  });
-                });
-              }
-            }
-          }
-        };
-        scope.user_clicks_branch = function(row) {
-          console.log("user_clicks__branch_folder-------------------------------");
-          scope.selectedItem.label=row.label;
-          scope.selectedItem.level=row.level;
-          scope.selectedItem.index=row.index;
 
-          var branch=row.branch;
-
-          if (branch !== selected_branch) {
-            return select_branch(branch);
-          }
-
-        };
-
-        get_parent = function(child) {
+        var get_parent = function(child) {
           var parent;
           parent = void 0;
           if (child.parent_uid) {
@@ -126,7 +52,8 @@ app.directive('foldertree', [
           }
           return parent;
         };
-        for_all_ancestors = function(child, fn) {
+        
+        var for_all_ancestors = function(child, fn) {
           var parent;
           parent = get_parent(child);
           if (parent != null) {
@@ -134,13 +61,122 @@ app.directive('foldertree', [
             return for_all_ancestors(parent, fn);
           }
         };
-        expand_all_parents = function(child) {
+
+        var expand_all_parents = function(child) {
           return for_all_ancestors(child, function(b) {
             return b.expanded = true;
           });
         };
-        scope.tree_rows = [];
-        on_treeData_change = function() {
+
+        this.selected_branch=null;
+
+        this.select_branch = function(branch,selected_branch) {
+          console.log("branch: "+branch);
+          console.log("selected_branch: "+selected_branch);
+
+          if (!branch) {
+            if (this.selected_branch != null) {
+              this.selected_branch.selected = false;
+            }
+            this.selected_branch = null;
+            return;
+          }
+          if (branch !== this.selected_branch) {
+            if (this.selected_branch != null) {
+              this.selected_branch.selected = false;
+            }
+            branch.selected = true;
+            this.selected_branch = branch;
+            expand_all_parents(branch);
+            if (branch.onSelect != null) {
+              return $timeout(function() {
+                return branch.onSelect(branch);
+              });
+            } else {
+              var scope = $scope || scope;
+              if (scope.onSelect != null) {
+                return $timeout(function() {
+                  return scope.onSelect({
+                    branch: branch
+                  });
+                });
+              }
+            }
+          }
+        };
+
+        this.get_parent = get_parent;
+        this.for_each_branch = for_each_branch;
+
+      },
+      link: function(scope, element, attrs,baFoldertreeCtrl) {
+
+        var registerIcons = function(attrs,pattern){
+          var expandLevel,iconExpand,iconCollapse,iconLeaf;
+          if(pattern=="folder"){
+            expandLevel='3',
+            iconExpand='glyphicon-folder-close',
+            iconCollapse='glyphicon-folder-open',
+            iconLeaf='glyphicon-folder-close';
+          }else if(pattern=="operator"){
+            expandLevel='3',
+            iconExpand='glyphicon-plus',
+            iconCollapse='glyphicon-minus',
+            iconLeaf='glyphicon-play';
+          }
+          if (attrs.iconExpand == null) {
+            attrs.iconExpand = 'glyphicon '+iconExpand;
+          }
+          if (attrs.iconCollapse == null) {
+            attrs.iconCollapse = 'glyphicon '+iconCollapse;
+          }
+          if (attrs.iconLeaf == null) {
+            attrs.iconLeaf = 'glyphicon '+iconLeaf;
+          }
+          if (attrs.expandLevel == null) {
+            attrs.expandLevel = expandLevel ;
+          }
+        } 
+
+        registerIcons(attrs,attrs.pattern);
+        
+        var for_each_branch    =  baFoldertreeCtrl.for_each_branch;
+        var get_parent         =  baFoldertreeCtrl.get_parent;
+        var select_branch      =  baFoldertreeCtrl.select_branch;
+
+
+        var expand_level = parseInt(attrs.expandLevel, 10);
+        if (!scope.treeData) {
+          //alert('no treeData defined for the tree!');
+          return;
+        }
+        if (scope.treeData.length == null) {
+          if (treeData.label != null) {
+            scope.treeData = [treeData];
+          } else {
+            alert('treeData should be an array of root branches');
+            return;
+          }
+        }
+        
+        var selected_branch = baFoldertreeCtrl.selected_branch;
+
+        scope.user_clicks_branch = function(row) {
+          console.log("user_clicks__branch_folder-------------------------------");
+          scope.selectedItem.label=row.label;
+          scope.selectedItem.level=row.level;
+          scope.selectedItem.index=row.index;
+
+          var branch=row.branch;
+
+          if (branch !== selected_branch) {
+            return select_branch(branch,selected_branch);
+          }
+        };
+
+
+   
+        var on_treeData_change = function() {
           var add_branch_to_list, root_branch, _i, _len, _ref, _results;
           for_each_branch(function(b, level) {
             if (!b.uid) {
@@ -191,11 +227,6 @@ app.directive('foldertree', [
             }
           });
           add_branch_to_list = function(level, branch, visible,_i) {
-            // console.log('add branch to list--------------------------');
-            // console.log('level:'+level);
-            // console.log('label:'+branch.label);
-            // console.log('visible:'+visible);
-            // console.log('index:'+_i);
             var child, child_visible, tree_icon, _i, _len, _ref, _results;
             if (branch.expanded == null) {
               branch.expanded = false;
@@ -240,7 +271,7 @@ app.directive('foldertree', [
         };
         scope.$watch('treeData', on_treeData_change, true);
         
-        n = scope.treeData.length;
+        var n = scope.treeData.length;
         console.log('num root branches = ' + n);
         for_each_branch(function(b, level) {
           b.level = level;
@@ -248,7 +279,7 @@ app.directive('foldertree', [
         });
         if (scope.treeControl != null) {
           if (angular.isObject(scope.treeControl)) {
-            tree = scope.treeControl;
+            var tree = scope.treeControl;
             tree.expand_all = function() {
               console.log("expand!");
               return for_each_branch(function(b, level) {
@@ -487,8 +518,8 @@ app.directive('foldertree', [
         }
       }
     };
-  }
-]);
+}]);
+
 
 
 

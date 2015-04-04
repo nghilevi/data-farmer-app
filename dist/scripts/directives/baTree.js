@@ -1,29 +1,22 @@
-app.directive('jobtree', function($timeout,treeService) {
+var treeDirective = angular.module('angularBootstrapNavTree', []);
+treeDirective.directive('baTree', [
+  '$timeout',
+  function ($timeout) {
     return {
       restrict: 'E',
-      templateUrl: '../views/jobtree.html',
+      templateUrl: '../views/baTree.html',
       replace: true,
+      require: 'baTree',
       scope: {
         treeData: '=',
+        selectedItem: '=',
         onSelect: '&',
-        selectedItem: '='
+        treeControl: '='
       },
-      link: function(scope, element, attrs) {
-        var expand_all_parents, expand_level, for_all_ancestors, for_each_branch, get_parent, n, on_treeData_change, select_branch, selected_branch, tree;
-
-        var expandLevel='3',
-            iconExpand='glyphicon-plus',
-            iconCollapse='glyphicon-minus',
-            iconLeaf='glyphicon-play';
-
-        treeService.registerIcons(attrs,expandLevel,iconExpand,iconCollapse,iconLeaf);
-
-        
-        expand_level = parseInt(attrs.expandLevel, 10);
-
-        for_each_branch = function(f) {
+      controller: function ($scope) {
+        var for_each_branch = function (f) {
           var do_f, root_branch, _i, _len, _ref, _results;
-          do_f = function(branch, level) {
+          do_f = function (branch, level) {
             var child, _i, _len, _ref, _results;
             f(branch, level);
             if (branch.children != null) {
@@ -36,6 +29,7 @@ app.directive('jobtree', function($timeout,treeService) {
               return _results;
             }
           };
+          var scope = $scope || scope;
           _ref = scope.treeData;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -44,53 +38,11 @@ app.directive('jobtree', function($timeout,treeService) {
           }
           return _results;
         };
-        selected_branch = null;
-        select_branch = function(branch) {
-          if (!branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            selected_branch = null;
-            return;
-          }
-          if (branch !== selected_branch) {
-            if (selected_branch != null) {
-              selected_branch.selected = false;
-            }
-            branch.selected = true;
-            selected_branch = branch;
-            expand_all_parents(branch);
-            if (branch.onSelect != null) {
-              return $timeout(function() {
-                return branch.onSelect(branch);
-              });
-            } else {
-              if (scope.onSelect != null) {
-                return $timeout(function() {
-                  return scope.onSelect({
-                    branch: branch
-                  });
-                });
-              }
-            }
-          }
-        };
-        scope.user_clicks_branch = function(row) {
-          console.log("user_clicks_branch-------------------------------");
-          
-
-          var branch=row.branch;
-
-          if (branch !== selected_branch) {
-            return select_branch(branch);
-          }
-        };
-
-        get_parent = function(child) {
+        var get_parent = function (child) {
           var parent;
           parent = void 0;
           if (child.parent_uid) {
-            for_each_branch(function(b) {
+            for_each_branch(function (b) {
               if (b.uid === child.parent_uid) {
                 return parent = b;
               }
@@ -98,7 +50,7 @@ app.directive('jobtree', function($timeout,treeService) {
           }
           return parent;
         };
-        for_all_ancestors = function(child, fn) {
+        var for_all_ancestors = function (child, fn) {
           var parent;
           parent = get_parent(child);
           if (parent != null) {
@@ -106,21 +58,104 @@ app.directive('jobtree', function($timeout,treeService) {
             return for_all_ancestors(parent, fn);
           }
         };
-        expand_all_parents = function(child) {
-          return for_all_ancestors(child, function(b) {
+        var expand_all_parents = function (child) {
+          return for_all_ancestors(child, function (b) {
             return b.expanded = true;
           });
         };
-        
-        on_treeData_change = function() {
+        this.selected_branch = null;
+        this.select_branch = function (branch, selected_branch) {
+          console.log('branch: ' + branch);
+          console.log('selected_branch: ' + selected_branch);
+          if (!branch) {
+            if (this.selected_branch != null) {
+              this.selected_branch.selected = false;
+            }
+            this.selected_branch = null;
+            return;
+          }
+          if (branch !== this.selected_branch) {
+            if (this.selected_branch != null) {
+              this.selected_branch.selected = false;
+            }
+            branch.selected = true;
+            this.selected_branch = branch;
+            expand_all_parents(branch);
+            if (branch.onSelect != null) {
+              return $timeout(function () {
+                return branch.onSelect(branch);
+              });
+            } else {
+              var scope = $scope || scope;
+              if (scope.onSelect != null) {
+                return $timeout(function () {
+                  return scope.onSelect({ branch: branch });
+                });
+              }
+            }
+          }
+        };
+        this.get_parent = get_parent;
+        this.for_each_branch = for_each_branch;
+      },
+      link: function (scope, element, attrs, baFoldertreeCtrl) {
+        var registerIcons = function (attrs, pattern) {
+          var expandLevel, iconExpand, iconCollapse, iconLeaf;
+          if (pattern == 'folder') {
+            expandLevel = '3', iconExpand = 'glyphicon-folder-close', iconCollapse = 'glyphicon-folder-open', iconLeaf = 'glyphicon-folder-close';
+          } else if (pattern == 'operator') {
+            expandLevel = '3', iconExpand = 'glyphicon-plus', iconCollapse = 'glyphicon-minus', iconLeaf = 'glyphicon-play';
+          }
+          if (attrs.iconExpand == null) {
+            attrs.iconExpand = 'glyphicon ' + iconExpand;
+          }
+          if (attrs.iconCollapse == null) {
+            attrs.iconCollapse = 'glyphicon ' + iconCollapse;
+          }
+          if (attrs.iconLeaf == null) {
+            attrs.iconLeaf = 'glyphicon ' + iconLeaf;
+          }
+          if (attrs.expandLevel == null) {
+            attrs.expandLevel = expandLevel;
+          }
+        };
+        registerIcons(attrs, attrs.pattern);
+        var for_each_branch = baFoldertreeCtrl.for_each_branch;
+        var get_parent = baFoldertreeCtrl.get_parent;
+        var select_branch = baFoldertreeCtrl.select_branch;
+        var expand_level = parseInt(attrs.expandLevel, 10);
+        if (!scope.treeData) {
+          //alert('no treeData defined for the tree!');
+          return;
+        }
+        if (scope.treeData.length == null) {
+          if (treeData.label != null) {
+            scope.treeData = [treeData];
+          } else {
+            alert('treeData should be an array of root branches');
+            return;
+          }
+        }
+        var selected_branch = baFoldertreeCtrl.selected_branch;
+        scope.user_clicks_branch = function (row) {
+          console.log('user_clicks__branch_folder-------------------------------');
+          scope.selectedItem.label = row.label;
+          scope.selectedItem.level = row.level;
+          scope.selectedItem.index = row.index;
+          var branch = row.branch;
+          if (branch !== selected_branch) {
+            return select_branch(branch, selected_branch);
+          }
+        };
+        var on_treeData_change = function () {
           var add_branch_to_list, root_branch, _i, _len, _ref, _results;
-          for_each_branch(function(b, level) {
+          for_each_branch(function (b, level) {
             if (!b.uid) {
-              return b.uid = "" + Math.random();
+              return b.uid = '' + Math.random();
             }
           });
           console.log('UIDs are set.');
-          for_each_branch(function(b) {
+          for_each_branch(function (b) {
             var child, _i, _len, _ref, _results;
             if (angular.isArray(b.children)) {
               _ref = b.children;
@@ -133,11 +168,11 @@ app.directive('jobtree', function($timeout,treeService) {
             }
           });
           scope.tree_rows = [];
-          for_each_branch(function(branch) {
+          for_each_branch(function (branch) {
             var child, f;
             if (branch.children) {
               if (branch.children.length > 0) {
-                f = function(e) {
+                f = function (e) {
                   if (typeof e === 'string') {
                     return {
                       label: e,
@@ -147,7 +182,7 @@ app.directive('jobtree', function($timeout,treeService) {
                     return e;
                   }
                 };
-                return branch.children = (function() {
+                return branch.children = function () {
                   var _i, _len, _ref, _results;
                   _ref = branch.children;
                   _results = [];
@@ -156,13 +191,13 @@ app.directive('jobtree', function($timeout,treeService) {
                     _results.push(f(child));
                   }
                   return _results;
-                })();
+                }();
               }
             } else {
               return branch.children = [];
             }
           });
-          add_branch_to_list = function(level, branch, visible,_i) {
+          add_branch_to_list = function (level, branch, visible, _i) {
             var child, child_visible, tree_icon, _i, _len, _ref, _results;
             if (branch.expanded == null) {
               branch.expanded = false;
@@ -178,7 +213,7 @@ app.directive('jobtree', function($timeout,treeService) {
             }
             scope.tree_rows.push({
               level: level,
-              index: _i || 0, //if _i=undefined -> i==0
+              index: _i || 0,
               branch: branch,
               label: branch.label,
               tree_icon: tree_icon,
@@ -190,7 +225,7 @@ app.directive('jobtree', function($timeout,treeService) {
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 child = _ref[_i];
                 child_visible = visible && branch.expanded;
-                _results.push(add_branch_to_list(level + 1, child, child_visible,_i));
+                _results.push(add_branch_to_list(level + 1, child, child_visible, _i));
               }
               return _results;
             }
@@ -199,56 +234,56 @@ app.directive('jobtree', function($timeout,treeService) {
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             root_branch = _ref[_i];
-            _results.push(add_branch_to_list(1, root_branch, true));
+            _results.push(add_branch_to_list(1, root_branch, true));  //no need for _results?
           }
           return _results;
         };
         scope.$watch('treeData', on_treeData_change, true);
-        
-        n = scope.treeData.length;
+        var n = scope.treeData.length;
         console.log('num root branches = ' + n);
-        for_each_branch(function(b, level) {
+        for_each_branch(function (b, level) {
           b.level = level;
           return b.expanded = b.level < expand_level;
         });
         if (scope.treeControl != null) {
           if (angular.isObject(scope.treeControl)) {
-            tree = scope.treeControl;
-            tree.expand_all = function() {
-              return for_each_branch(function(b, level) {
+            var tree = scope.treeControl;
+            tree.expand_all = function () {
+              console.log('expand!');
+              return for_each_branch(function (b, level) {
                 return b.expanded = true;
               });
             };
-            tree.collapse_all = function() {
-              return for_each_branch(function(b, level) {
+            tree.collapse_all = function () {
+              return for_each_branch(function (b, level) {
                 return b.expanded = false;
               });
             };
-            tree.get_first_branch = function() {
+            tree.get_first_branch = function () {
               n = scope.treeData.length;
               if (n > 0) {
                 return scope.treeData[0];
               }
             };
-            tree.select_first_branch = function() {
+            tree.select_first_branch = function () {
               var b;
               b = tree.get_first_branch();
               return tree.select_branch(b);
             };
-            tree.get_selected_branch = function() {
+            tree.get_selected_branch = function () {
               return selected_branch;
             };
-            tree.get_parent_branch = function(b) {
+            tree.get_parent_branch = function (b) {
               return get_parent(b);
             };
-            tree.select_branch = function(b) {
+            tree.select_branch = function (b) {
               select_branch(b);
               return b;
             };
-            tree.get_children = function(b) {
+            tree.get_children = function (b) {
               return b.children;
             };
-            tree.select_parent_branch = function(b) {
+            tree.select_parent_branch = function (b) {
               var p;
               if (b == null) {
                 b = tree.get_selected_branch();
@@ -261,7 +296,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.add_branch = function(parent, new_branch) {
+            tree.add_branch = function (parent, new_branch) {
               if (parent != null) {
                 parent.children.push(new_branch);
                 parent.expanded = true;
@@ -270,11 +305,11 @@ app.directive('jobtree', function($timeout,treeService) {
               }
               return new_branch;
             };
-            tree.add_root_branch = function(new_branch) {
+            tree.add_root_branch = function (new_branch) {
               tree.add_branch(null, new_branch);
               return new_branch;
             };
-            tree.expand_branch = function(b) {
+            tree.expand_branch = function (b) {
               if (b == null) {
                 b = tree.get_selected_branch();
               }
@@ -283,7 +318,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return b;
               }
             };
-            tree.collapse_branch = function(b) {
+            tree.collapse_branch = function (b) {
               if (b == null) {
                 b = selected_branch;
               }
@@ -292,7 +327,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return b;
               }
             };
-            tree.get_siblings = function(b) {
+            tree.get_siblings = function (b) {
               var p, siblings;
               if (b == null) {
                 b = selected_branch;
@@ -307,7 +342,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return siblings;
               }
             };
-            tree.get_next_sibling = function(b) {
+            tree.get_next_sibling = function (b) {
               var i, siblings;
               if (b == null) {
                 b = selected_branch;
@@ -321,7 +356,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.get_prev_sibling = function(b) {
+            tree.get_prev_sibling = function (b) {
               var i, siblings;
               if (b == null) {
                 b = selected_branch;
@@ -333,7 +368,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return siblings[i - 1];
               }
             };
-            tree.select_next_sibling = function(b) {
+            tree.select_next_sibling = function (b) {
               var next;
               if (b == null) {
                 b = selected_branch;
@@ -345,7 +380,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.select_prev_sibling = function(b) {
+            tree.select_prev_sibling = function (b) {
               var prev;
               if (b == null) {
                 b = selected_branch;
@@ -357,7 +392,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.get_first_child = function(b) {
+            tree.get_first_child = function (b) {
               var _ref;
               if (b == null) {
                 b = selected_branch;
@@ -368,7 +403,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.get_closest_ancestor_next_sibling = function(b) {
+            tree.get_closest_ancestor_next_sibling = function (b) {
               var next, parent;
               next = tree.get_next_sibling(b);
               if (next != null) {
@@ -378,7 +413,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return tree.get_closest_ancestor_next_sibling(parent);
               }
             };
-            tree.get_next_branch = function(b) {
+            tree.get_next_branch = function (b) {
               var next;
               if (b == null) {
                 b = selected_branch;
@@ -393,7 +428,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.select_next_branch = function(b) {
+            tree.select_next_branch = function (b) {
               var next;
               if (b == null) {
                 b = selected_branch;
@@ -406,7 +441,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            tree.last_descendant = function(b) {
+            tree.last_descendant = function (b) {
               var last_child;
               if (b == null) {
                 debugger;
@@ -419,7 +454,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 return tree.last_descendant(last_child);
               }
             };
-            tree.get_prev_branch = function(b) {
+            tree.get_prev_branch = function (b) {
               var parent, prev_sibling;
               if (b == null) {
                 b = selected_branch;
@@ -434,7 +469,7 @@ app.directive('jobtree', function($timeout,treeService) {
                 }
               }
             };
-            return tree.select_prev_branch = function(b) {
+            return tree.select_prev_branch = function (b) {
               var prev;
               if (b == null) {
                 b = selected_branch;
@@ -452,7 +487,4 @@ app.directive('jobtree', function($timeout,treeService) {
       }
     };
   }
-);
-
-
-
+]);

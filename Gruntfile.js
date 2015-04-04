@@ -3,32 +3,21 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
-	grunt.loadNpmTasks('grunt-contrib-imagemin');
 	grunt.loadNpmTasks('grunt-json-minify');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	// grunt.loadNpmTasks('grunt-contrib-sass');
+	grunt.loadNpmTasks('grunt-ngmin');
 	 
 	grunt.initConfig({
 		concat: {
 			scripts: {
-				src: ["app/directives/foldertree.js","app/directives/jobtree.js","app/directives/checkboxtree.js","app/app.js","app/controllers/main.js"],
-				dest: 'dist/scripts/app.js'
-			},
-			styles: {
-				src: ['dev/styles/fixed-element.css',
-					'dev/styles/about-me.css',
-					'dist/styles/fonts.css',
-					'dev/styles/reset.css',
-					'dev/styles/my-work.css',
-					'dev/styles/autocomplete.css'],
-				dest: 'dist/styles/app.css'
+				src: ["app/directives/baTree.js","app/directives/baCheckboxtree.js","app/app.js","app/controllers/main.js"],
+				dest: 'dist/scripts/app/app.js'
 			}
 		},
 		copy: { //copy json file
 		  main: {
-		    src: 'dev/models/data.json',
+		    src: 'models/data.json',
 		    dest: 'dist/models/data.json',
 		  },
 		},
@@ -36,20 +25,20 @@ module.exports = function(grunt){
 		uglify:{
 			scripts: {
 				files: {
-					'dist/scripts/my-work.min.js' : 'dev/scripts/my-work.js'
+					'dist/scripts/app/app.min.js' : 'dist/scripts/app/app.js'
 				}
 			}
 		},
 		cssmin: {
 			app: {
 				files: {
-					'dist/styles/app.min.css': 'dist/styles/app.css'
+					'dist/styles/app.min.css': 'styles/app.css'
 				}
 			}
 		},
 		'json-minify': { //not include copy
 		  build: {
-		    files: 'dist/models/*.json'
+		    files: 'dist/models/data.json'
 		  }
 		},
 		htmlmin: {                                     
@@ -59,74 +48,32 @@ module.exports = function(grunt){
 		        collapseWhitespace: true
 		      },
 		      files: {                                  
-		        'dist/views/my-work.html': 'dev/views/my-work.html',
-		        'dist/views/about-me.html': 'dev/views/about-me.html'
-		        //'dist/views/404.html': 'dev/views/404.html' //useless
+		        'dist/views/404.html': 'views/404.html',
+		        'dist/views/baCheckboxtree.html': 'views/baCheckboxtree.html',
+		        'dist/views/baTree.html': 'views/baTree.html',
+		        'dist/views/home.html': 'views/home.html',
+		        'dist/views/organizations_tree.html': 'views/organizations_tree.html',
 		      }
 		    }
 		},
-		watch: {
-			scripts: {
-				files: 'scripts/**/*.js',
-				// tasks: ['coffee', 'concat:scripts', 'uglify'],
-				tasks: ['concat:scripts'],
-				options: {
-					spawn: false,
-					livereload : true
-				}
-			},
-			styles: {
-				files: 'styles/**/*.css',
-				tasks: ['concat'],
-				options: {
-					spawn: false,
-					livereload : true
-				}
-			},
-			html:{
-				files: 'views/**/*.html',
-				tasks: ['htmlmin'],
-				options: {
-					spawn: false,
-					livereload : true
-				}
-			}
-		},
-	  	imagemin: {
-		    png: {
-		      options: {
-		        optimizationLevel: 7
-		      },
-		      files: [
-		        {
-		          expand: true,
-		          cwd: 'dev/img/',
-		          src: ['**/*.png'],
-		          dest: 'dist/img/',
-		          ext: '.png'
-		        }
-		      ]
-		    },
-		    jpg: {
-		      options: {
-		        progressive: true
-		      },
-		      files: [
-		        {
-		          // Set to true to enable the following options…
-		          expand: true,
-		          cwd: 'dev/img/',
-		          src: ['**/*.jpg'],
-		          dest: 'dist/img/',
-		          ext: '.jpg'
-		        }
-		      ]
-		    }
-	  	}
+		ngmin: {
+		  controllers: {
+		    src: ['app/app.js','app/controllers/main.js'],
+		    dest: 'dist/scripts/app.js'
+		  },
+		  directives: {
+		    expand: true,
+		    cwd: 'app',
+		    src: ['directives/**/*.js'],
+		    dest: 'dist/scripts'
+		  }
+		}
 	});
 
 	//only html & css tasks do very good!
-	grunt.registerTask('build', "Builds the application.",['htmlmin','concat','cssmin']);
+	grunt.registerTask('buildJson',"Copy and minify json",['copy','json-minify']);
+	grunt.registerTask('buildWithJson', "Builds the application with buildJson tasks.",['concat','uglify','buildJson', 'htmlmin','cssmin']);
+	grunt.registerTask('build', "Builds the application.",['concat','uglify', 'htmlmin','cssmin']);
 };
 
 

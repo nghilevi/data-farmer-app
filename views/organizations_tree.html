@@ -10,28 +10,25 @@
   </tr>  
 </thead>
 <tbody id="tbody">
-  
   <tr>
-
     <!-- name columns -->
-<!--     <td class="main-column name-column">
-      <foldertree tree-data="my_data" tree-control="my_tree" expand-level="4" selected-item="selectedItem"></foldertree>
-    </td> -->
     <td class="main-column name-column">
-      <ba-foldertree 
+      <ba-tree 
         tree-data="my_data" 
         expand-level="4" 
         selected-item="selectedItem"
         pattern="folder"
         tree-control="my_tree" 
-      ></ba-foldertree>
+      ></ba-tree >
     </td>
     <!-- checkbox columns -->
-<!--     <td class="main-column" ng-repeat="prop in prop_names">
-      <checkboxtree column="prop" tree-data="my_data" toggle-select="toggleSelect" selected-item="selectedItem"></checkboxtree>
-    </td> -->
     <td class="main-column" ng-repeat="prop in prop_names">
-      <ba-checkboxtree column="prop" tree-data="my_data" toggle-select="toggleSelect" selected-item="selectedItem"></ba-checkboxtree>
+      <ba-checkboxtree 
+        tree-data="my_data" 
+        selected-item="selectedItem"
+        toggle-select="toggleSelect"
+        column="prop"  
+      ></ba-checkboxtree>
     </td>
   </tr>
 </tbody>

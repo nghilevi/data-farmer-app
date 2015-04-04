@@ -1,47 +1,11 @@
-// be prepare for minification - http://stackoverflow.com/questions/21211695/angularjs-inject-service-into-directive
+var treeDirective = angular.module('angularBootstrapNavTree', []);
 
-var app = angular.module('angularBootstrapNavTree', []);
-
-app.factory('iconService', function () {
-
-  var registerIcon = function(attrs,pattern){
-    var expandLevel,iconExpand,iconCollapse,iconLeaf;
-    if(pattern=="folder"){
-      expandLevel='3',
-      iconExpand='glyphicon-folder-close',
-      iconCollapse='glyphicon-folder-open',
-      iconLeaf='glyphicon-folder-close';
-    }else if(pattern=="operator"){
-      expandLevel='3',
-      iconExpand='glyphicon-plus',
-      iconCollapse='glyphicon-minus',
-      iconLeaf='glyphicon-play';
-    }
-    if (attrs.iconExpand == null) {
-      attrs.iconExpand = 'glyphicon '+iconExpand;
-    }
-    if (attrs.iconCollapse == null) {
-      attrs.iconCollapse = 'glyphicon '+iconCollapse;
-    }
-    if (attrs.iconLeaf == null) {
-      attrs.iconLeaf = 'glyphicon '+iconLeaf;
-    }
-    if (attrs.expandLevel == null) {
-      attrs.expandLevel = expandLevel ;
-    }
-  } 
-
-  return { 
-    registerIcons : registerIcon
-  };
-});
-
-app.directive('baFoldertree',function($timeout,iconService) {
+treeDirective.directive('baTree',['$timeout',function($timeout) {
     return {
       restrict: 'E',
-      templateUrl: '../views/foldertree.html',
+      templateUrl: '../views/baTree.html',
       replace: true,
-      require:'baFoldertree',
+      require:'baTree',
       scope: {
         treeData: '=',
         selectedItem: '=',
@@ -146,9 +110,35 @@ app.directive('baFoldertree',function($timeout,iconService) {
 
       },
       link: function(scope, element, attrs,baFoldertreeCtrl) {
-        console.log(attrs);
 
-        iconService.registerIcons(attrs,attrs.pattern);
+        var registerIcons = function(attrs,pattern){
+          var expandLevel,iconExpand,iconCollapse,iconLeaf;
+          if(pattern=="folder"){
+            expandLevel='3',
+            iconExpand='glyphicon-folder-close',
+            iconCollapse='glyphicon-folder-open',
+            iconLeaf='glyphicon-folder-close';
+          }else if(pattern=="operator"){
+            expandLevel='3',
+            iconExpand='glyphicon-plus',
+            iconCollapse='glyphicon-minus',
+            iconLeaf='glyphicon-play';
+          }
+          if (attrs.iconExpand == null) {
+            attrs.iconExpand = 'glyphicon '+iconExpand;
+          }
+          if (attrs.iconCollapse == null) {
+            attrs.iconCollapse = 'glyphicon '+iconCollapse;
+          }
+          if (attrs.iconLeaf == null) {
+            attrs.iconLeaf = 'glyphicon '+iconLeaf;
+          }
+          if (attrs.expandLevel == null) {
+            attrs.expandLevel = expandLevel ;
+          }
+        } 
+
+        registerIcons(attrs,attrs.pattern);
         
         var for_each_branch    =  baFoldertreeCtrl.for_each_branch;
         var get_parent         =  baFoldertreeCtrl.get_parent;
@@ -528,8 +518,291 @@ app.directive('baFoldertree',function($timeout,iconService) {
         }
       }
     };
-});
+}]);
 
 
 
+
+
+treeDirective.directive('baCheckboxtree', ['$timeout', function($timeout) {
+    return {
+      restrict: 'E',
+      templateUrl: '../views/baCheckboxtree.html',
+      replace: true,
+      scope: {
+        treeData: '=',
+        selectedItem: '=', 
+        column:'=',
+        toggleSelect:'='
+      },
+      link: function(scope, element, attrs) {
+
+        scope.user_clicks_branch = function(row) {
+          console.log("user_clicks__branch_checkbox-------------------------------");
+          var branch=row.branch;
+          scope.selectedItem.label=branch.label;
+          scope.selectedItem.level=row.level+1;
+          scope.selectedItem.index=row.index;
+          scope.selectedItem.prop=scope.column;
+          $timeout(function(){
+            scope.toggleSelect(scope.column)
+          });
+        };
+
+      
+        var on_treeData_change = function() {
+          console.log('on_treeData_change!!!');
+
+          var add_branch_to_list, root_branch, _i, _len, _ref, _results;
+
+          scope.tree_rows = [];
+
+          add_branch_to_list = function(level, branch, visible,_i) { //remember to pass back _i so _i is updated again
+            var child, child_visible, _i, _len, _ref, _results;
+
+            scope.tree_rows.push({
+              branch: branch,
+              index: _i || 0, //if _i=undefined -> i==0
+              level: level,
+              label: branch.props[scope.column],
+              visible: visible
+            });
+
+
+            if (branch.children != null) {
+              _ref = branch.children;
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                child = _ref[_i];
+                child_visible = visible && branch.expanded;
+                _results.push(add_branch_to_list(level + 1, child, child_visible,_i));
+              }
+              return _results;
+            }
+          };
+
+          _ref = scope.treeData;
+          _results = [];
+
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            root_branch = _ref[_i];
+            _results.push(add_branch_to_list(0, root_branch, true));
+          }
+          
+          return _results;
+        };
+
+        scope.$watch('treeData', on_treeData_change, true);
+
+      }
+    };
+  }
+]);
+var dtfApp = angular.module('dtfApp', [
+  'ngRoute','ngAnimate','angularBootstrapNavTree'
+])
+
+dtfApp.config(['$routeProvider',function ($routeProvider) {
+  $routeProvider
+    .when('/', {
+      templateUrl: 'views/home.html'
+    })
+    .when('/Intergration Jobs', {
+      templateUrl: 'views/organizations_tree.html'
+    })    
+    .otherwise({
+      templateUrl: 'views/404.html'
+    });
+}]);
+
+dtfApp.controller('MainController', ['$scope', '$http','$timeout','$location',
+  function($scope, $http,$timeout,$location) { 
+    // ********* Scope variables *********
+    var col1,col2,col3,col4,savedData;
+    $scope.my_tree = tree = {};
+    var getDataFromServer = function(){
+      //get data from local storage
+      savedData = JSON.parse(localStorage.getItem('savedData'));
+      if(!savedData){
+        $http.get('models/data.json').success(function(data) {
+          populateData(data);
+        }); 
+      }else{
+        populateData(savedData);
+      }
+
+      function populateData(data){
+        $scope.my_data = data;
+        $scope.prop_names=Object.keys(data[0].props);
+        col1=$scope.prop_names[1];
+        col2=$scope.prop_names[2];
+        col3=$scope.prop_names[3];
+        col4=$scope.prop_names[4];
+
+        $timeout(function() {
+          tree.expand_all(); //expand the tree after 1sec
+        }, 500);
+      }
+
+      $scope.selectedItem={label:"",level:"",index:"",prop:""};     
+    }
+
+    getDataFromServer();
+
+    $scope.jobs=[
+        {"label":"Desktop","children":[{}]},
+        {"label":"Intergrations","children":[{"label":"Intergration Jobs"}]},
+        {"label":"Reporting","children":[{}]},
+        {"label":"Administration","children":[{}]}
+    ];
+
+    
+    $scope.lastRefreshDateTime = "";
+    $scope.lastSavedDateTime = "";
+
+    // ********* Helper functions ************
+    var gotoFrame=function(path){
+      $location.path('/'+path);
+      $scope.title=path;
+    }
+
+    var getCurrentDateTime=function(){
+      var currDateStr = ' ';
+      var currentDate = new Date(); 
+      currDateStr +=currentDate.getFullYear()+ "/";
+      currDateStr +=(currentDate.getMonth()+1)+ "/";
+      currDateStr +=currentDate.getDate() + "  ";
+      currDateStr +=currentDate.getHours() + ":"  ;
+      var minutes =currentDate.getMinutes();
+      if (minutes < 10) {minutes = "0"+minutes;}
+      currDateStr +=minutes;
+      return currDateStr;
+    }
+
+    $scope.toggleSelect=function(prop){
+      console.log("toggleSelect");
+
+      var label=$scope.selectedItem.label;
+      var level=$scope.selectedItem.level;
+      var index=$scope.selectedItem.index;
+      var selectedProp=$scope.selectedItem.prop; //column
+
+      if(level ==""){
+        alert("Please select a row first");
+      }else{
+
+        //Solution 1: using recursion --------------------------------------------------
+        var result=[];
+        function returnChildren(current, depth) {
+            var children = current.children;
+            var result=[];
+            for (var i = 0, len = children.length; i < len; i++) {
+              var current_props = children[i].props;
+              if ((depth==level) && index==i){
+                current_props[prop]=!current_props[prop];
+              };            
+              children[i].props=current_props;
+              result.push({
+                label: children[i].label,
+                props: children[i].props,
+                children: returnChildren(children[i], depth + 1)
+              });
+            }
+            return result;
+        }
+        
+        var current_props = $scope.my_data[0].props;
+        if ((1==level) && index==0){
+          current_props[prop]=!current_props[prop];
+        };
+        $scope.my_data[0].props=current_props;
+        result.push({
+          label: $scope.my_data[0].label,
+          props: $scope.my_data[0].props,
+          children: returnChildren($scope.my_data[0], 2)
+        });
+        $scope.my_data=result;
+        $timeout(function() {
+            tree.expand_all(); 
+        });
+
+        //Solution 2: using eval --------------------------------------------------
+        /*
+        Use eval eg. change North America, level 3, index 0
+        var oldValue=$scope.my_data[0].children[0].children[index].props[prop];
+        $scope.my_data[0].children[0].children[index].props[prop]=!oldValue;
+        Comment: non stable when click on checkbox
+        Another way is to update using mongoDB 
+        */
+ 
+        // var findOldValueStr='$scope.my_data[0]'; //root
+
+        // for(l=1;l<=level;l++){
+        //     if(level==1){ //also the root level
+        //       findOldValueStr+='.props[prop]';
+        //       break;
+        //     }
+        //     if(l==level-1){
+        //       findOldValueStr+='.children[index].props[prop]';
+        //       break;
+        //     }
+
+        //     if(l<level){
+        //       findOldValueStr+='.children[0]';
+        //     }
+        // }        
+
+        // var oldValue=eval(findOldValueStr);
+        // var updateValueStr=findOldValueStr+'=!'+oldValue;
+        // eval(updateValueStr);
+      }
+    }
+
+    //Scope methods
+    $scope.refresh=function(){
+      $scope.lastRefreshDateTime="Last Refreshed: "+getCurrentDateTime();
+      getDataFromServer();
+    }
+
+    $scope.save=function(){
+      var savedData = JSON.stringify($scope.my_data);
+      localStorage.setItem('savedData', savedData);
+      $scope.lastSavedDateTime="Last saved: "+getCurrentDateTime();
+    }
+
+    $scope.saveAndRun=function(){
+      $scope.save();
+      gotoFrame('schedule');
+    }
+
+    $scope.close=function(){
+      gotoFrame('close');
+    }
+
+    $scope.importOrganization=function(){
+      $scope.toggleSelect(col1);
+    }
+
+    $scope.importOrganizationAndUsers=function(){
+      $scope.toggleSelect(col1);
+      $scope.toggleSelect(col2);
+    }
+
+    $scope.obsoleteOrganization=function(){
+      $scope.toggleSelect(col3);
+    }
+
+    $scope.obsoleteUsers=function(){
+      $scope.toggleSelect(col4);
+    }
+
+    $scope.jobTreeHandler=function(branch){
+      var path = branch.label;
+      gotoFrame(path);
+      if(path="Intergration Jobs"){
+        getDataFromServer();
+      }
+    }
+
+}]);
 

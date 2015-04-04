@@ -1,4 +1,5 @@
-dtfApp.controller('MainController', function($scope, $http,$timeout,$location) { 
+dtfApp.controller('MainController', ['$scope', '$http','$timeout','$location',
+  function($scope, $http,$timeout,$location) { 
     // ********* Scope variables *********
     var col1,col2,col3,col4,savedData;
     $scope.my_tree = tree = {};
@@ -186,5 +187,5 @@ dtfApp.controller('MainController', function($scope, $http,$timeout,$location) {
       }
     }
 
-});
+}]);
 
