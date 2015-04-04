@@ -9,29 +9,49 @@ module.exports = function(grunt){
 	 
 	grunt.initConfig({
 		concat: {
-			scripts: {
+			dist: {
 				src: ["app/directives/baTree.js","app/directives/baCheckboxtree.js","app/app.js","app/controllers/main.js"],
 				dest: 'dist/scripts/app/app.js'
+			},
+			dep: {
+				src: ["dep/baTree.js","dep/directives/baCheckboxtree.js","dep/app.js","dep/controllers/main.js"],
+				dest: 'dep/app-dep.js'
 			}
 		},
 		copy: { //copy json file
-		  main: {
+		  json: {
 		    src: 'models/data.json',
 		    dest: 'dist/models/data.json',
 		  },
+		  dep:{ //deployment
+		  	files: [
+		       // flattens results to a single level
+		       {expand: true, flatten: true, src: ['dev/**'], dest: 'dep/', filter: 'isFile'},
+		    ]
+		  }
 		},
 		//Min stuff
 		uglify:{
-			scripts: {
+			dist: {
 				files: {
 					'dist/scripts/app/app.min.js' : 'dist/scripts/app/app.js'
+				}
+			},
+			dep: {
+				files: {
+					'dep/app-dep.min.js' : 'dep/app-dep.js'
 				}
 			}
 		},
 		cssmin: {
-			app: {
+			dist: {
 				files: {
 					'dist/styles/app.min.css': 'styles/app.css'
+				}
+			},
+			dep: {
+				files: {
+					'dep/app.min.css': 'dep/app.css'
 				}
 			}
 		},
@@ -41,7 +61,7 @@ module.exports = function(grunt){
 		  }
 		},
 		htmlmin: {                                     
-		    'view-main': {                                      
+		    dist: {                                      
 		      options: {                                 
 		        removeComments: true,
 		        collapseWhitespace: true
@@ -53,26 +73,28 @@ module.exports = function(grunt){
 		        'dist/views/home.html': 'views/home.html',
 		        'dist/views/organizations_tree.html': 'views/organizations_tree.html',
 		      }
+		    },
+		    dep:{                                      
+		      options: {                                 
+		        removeComments: true,
+		        collapseWhitespace: true
+		      },
+		      files: {                                  
+		        'dep/404.html': 'dep/404.html',
+		        'dep/baCheckboxtree.html': 'dep/baCheckboxtree.html',
+		        'dep/baTree.html': 'dep/baTree.html',
+		        'dep/home.html': 'dep/home.html',
+		        'dep/organizations_tree.html': 'dep/organizations_tree.html',
+		      }
 		    }
-		},
-		ngmin: {
-		  controllers: {
-		    src: ['app/app.js','app/controllers/main.js'],
-		    dest: 'dist/scripts/app.js'
-		  },
-		  directives: {
-		    expand: true,
-		    cwd: 'app',
-		    src: ['directives/**/*.js'],
-		    dest: 'dist/scripts'
-		  }
 		}
 	});
 
 	//only html & css tasks do very good!
-	grunt.registerTask('buildJson',"Copy and minify json",['copy','json-minify']);
-	grunt.registerTask('buildWithJson', "Builds the application with buildJson tasks.",['concat','uglify','buildJson', 'htmlmin','cssmin']);
-	grunt.registerTask('build', "Builds the application.",['concat','uglify', 'htmlmin','cssmin']);
+	grunt.registerTask('buildJson',"Copy and minify json",['copy:json','json-minify']);
+	grunt.registerTask('build', "Builds distribution version",['concat:dist','uglify:dist','buildJson', 'htmlmin:dist','cssmin:dist']);
+	//grunt.registerTask('buildDep', "Builds deployment version",['concat:dep','uglify:dep','htmlmin:dep','cssmin:dep']);
+	grunt.registerTask('buildDep',['concat:dep','uglify:dep']);
 };
 
 

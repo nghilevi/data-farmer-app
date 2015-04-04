@@ -1,8 +1,8 @@
-[Demo](http://www.codingisloving.com/WEBAPPS/datafarmer2/index.html#/)
+[Demo](http://www.codingisloving.com/WEBAPPS/datafarmer/index.html)
 
-1 way to run this demo is:
+To see the demo locally:
 
-_ Download & unzip the package
+_ Download & unzip the repo package
 
 _ Go to dtfApp folder, type in the cmd/terminal "node server.js"
 
