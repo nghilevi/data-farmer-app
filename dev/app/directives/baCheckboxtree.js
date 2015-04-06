@@ -1,7 +1,7 @@
 treeDirective.directive('baCheckboxtree', ['$timeout', function($timeout) {
     return {
       restrict: 'E',
-      templateUrl: '../views/baCheckboxtree.html',
+      templateUrl: './dev/views/baCheckboxtree.html',
       replace: true,
       scope: {
         treeData: '=',

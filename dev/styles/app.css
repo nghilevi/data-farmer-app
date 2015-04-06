@@ -67,7 +67,8 @@ ul.abn-tree li.abn-tree-row a {
 }
 
 ul.abn-tree i.indented {
-  padding: 2px;
+/*  padding-right: 18px;*/
+  padding:2px;
 }
 
 .abn-tree {

@@ -5,12 +5,12 @@ var dtfApp = angular.module('dtfApp', [
 dtfApp.config(['$routeProvider',function ($routeProvider) {
   $routeProvider
     .when('/', {
-      templateUrl: 'views/home.html'
+      templateUrl: 'dev/views/home.html'
     })
     .when('/Intergration Jobs', {
-      templateUrl: 'views/organizations_tree.html'
+      templateUrl: 'dev/views/organizations_tree.html'
     })    
     .otherwise({
-      templateUrl: 'views/404.html'
+      templateUrl: 'dev/views/404.html'
     });
 }]);
